@@ -4,7 +4,7 @@ from flask import Flask, flash, redirect, render_template, request, session, abo
 from werkzeug.utils import secure_filename
 import subprocess
 
-ALLOWED_EXTENSIONS = set(['c', 'py'])
+ALLOWED_EXTENSIONS = ['c', 'py']
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -15,7 +15,14 @@ def home():
     if not session.get('logged_in'):
         return render_template('login.html')
     else:
-        return render_template('upload.html')
+        if ALLOWED_EXTENSIONS:
+            allowedExtentions = '.'
+            for i in range(0, len(ALLOWED_EXTENSIONS)):
+                allowedExtentions += ALLOWED_EXTENSIONS[i]
+                if(i<len(ALLOWED_EXTENSIONS)-1):
+                    allowedExtentions += ', .'
+        
+        return render_template('main.html', allowedExtentions=allowedExtentions)
 
 @app.route('/login', methods=['POST'])
 def do_admin_login():
@@ -28,7 +35,7 @@ def do_admin_login():
 @app.route("/logout")
 def logout():
     session['logged_in'] = False
-    return home()
+    return redirect('/')
 
 @app.route('/', methods=['POST'])
 def upload_file():
@@ -59,4 +66,4 @@ def upload_file():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug = True)

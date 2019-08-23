@@ -1,0 +1,11 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+table table td { width: 35px; height: 35px; border: 1px solid black; font-size: 18px; font-weight: bold; text-align: center; vertical-align: center}
