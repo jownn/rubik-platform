@@ -1,5 +1,6 @@
 import sqlite3
 
+
 class Database:
     def __init__(self, name):
         self._conn = sqlite3.connect(name)
@@ -23,7 +24,7 @@ class Database:
 
     def dict_factory(self, cursor, row):
         d = {}
-        for idx,col in enumerate(cursor.description):
+        for idx, col in enumerate(cursor.description):
             d[col[0]] = row[idx]
         return d
 
