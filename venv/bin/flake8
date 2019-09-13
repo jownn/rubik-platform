@@ -1,5 +1,4 @@
 #!/home/jonathan/Projects/rubik-platform/venv/bin/python
-
 # -*- coding: utf-8 -*-
 import re
 import sys

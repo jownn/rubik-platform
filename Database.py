@@ -34,6 +34,9 @@ class Database:
     def execute(self, sql, params=None):
         self.cursor.execute(sql, params or ())
 
+    def execute_many(self, sql, lista):
+        self.cursor.executemany(sql, lista)
+
     def fetchall(self):
         return self.cursor.fetchall()
 
@@ -43,3 +46,4 @@ class Database:
     def query(self, sql, params=None):
         self.cursor.execute(sql, params or ())
         return self.fetchall()
+
