@@ -15,9 +15,11 @@
 		<a class="navbar-brand my-0 mr-md-auto" href="/home">
 			<img src="/static/img/LogoRubik.png" height="50" class="d-inline-block align-top" alt="">
 		</a>
-		<nav class="my-2 my-md-0 mr-md-3">
-			<a class="p-2 text-dark" href="/configuracoes"><i class="fas fa-cogs"></i> Configurações</a>
-		</nav>
+		{% if cadastro.tipo == 'admin' %}
+			<nav class="my-2 my-md-0 mr-md-3">
+				<a class="p-2 text-dark" href="/configuracoes"><i class="fas fa-cogs"></i> Configurações</a>
+			</nav>
+		{% endif %}
 		<a class="btn btn-outline-primary" href="logout">Sair</a>
 	</div>
 
@@ -54,7 +56,7 @@
 											</tr>
 											<tr>
 												<td style="{{cubo[3]}}">4</td>
-												<td style="{{cubo[4]}}">F</td>
+												<td style="{{cubo[4]}}">U</td>
 												<td style="{{cubo[5]}}">6</td>
 											</tr>
 											<tr>
@@ -76,7 +78,7 @@
 											</tr>
 											<tr>
 												<td style="{{cubo[12]}}">13</td>
-												<td style="{{cubo[13]}}">B</td>
+												<td style="{{cubo[13]}}">L</td>
 												<td style="{{cubo[14]}}">15</td>
 											</tr>
 											<tr>
@@ -95,7 +97,7 @@
 											</tr>
 											<tr>
 												<td style="{{cubo[21]}}">22</td>
-												<td style="{{cubo[22]}}">D</td>
+												<td style="{{cubo[22]}}">F</td>
 												<td style="{{cubo[23]}}">24</td>
 											</tr>
 											<tr>
@@ -114,7 +116,7 @@
 											</tr>
 											<tr>
 												<td style="{{cubo[30]}}">31</td>
-												<td style="{{cubo[31]}}">C</td>
+												<td style="{{cubo[31]}}">R</td>
 												<td style="{{cubo[32]}}">33</td>
 											</tr>
 											<tr>
@@ -124,9 +126,6 @@
 											</tr>
 										</table>
 									</td>
-								</tr>
-								<tr>
-									<td></td>
 									<td>
 										<table>
 											<tr>
@@ -136,7 +135,7 @@
 											</tr>
 											<tr>
 												<td style="{{cubo[39]}}">40</td>
-												<td style="{{cubo[40]}}">T</td>
+												<td style="{{cubo[40]}}">B</td>
 												<td style="{{cubo[41]}}">42</td>
 											</tr>
 											<tr>
@@ -146,7 +145,6 @@
 											</tr>
 										</table>
 									</td>
-									<td></td>
 								</tr>
 								<tr>
 									<td></td>
@@ -159,7 +157,7 @@
 											</tr>
 											<tr>
 												<td style="{{cubo[48]}}">49</td>
-												<td style="{{cubo[49]}}">E</td>
+												<td style="{{cubo[49]}}">D</td>
 												<td style="{{cubo[50]}}">51</td>
 											</tr>
 											<tr>
@@ -173,7 +171,7 @@
 								</tr>
 							</table>
 						</div>
-						<small>F - Frente / B - Baixo / D - Direita / C - Cima / T - Trás / E - Esquerda</small>
+						<small>F - Front / D - Down / R - Right / U - Upper / B - Back / L - Left</small>
 					</div>
 				</div>
 			</div>
@@ -203,7 +201,7 @@
 								<i class="fas fa-sm fa-undo fa-flip-horizontal"></i>
 							</div>
 							<div class="col-lg-3 align-self-center">
-								Frente
+								Front
 							</div>
 							<div class="col-lg-1">
 								<i class="fas fa-sm fa-undo"></i>
@@ -220,7 +218,7 @@
 								<i class="fas fa-sm fa-undo fa-flip-horizontal"></i>
 							</div>
 							<div class="col-lg-3 align-self-center">
-								Trás
+								Back
 							</div>
 							<div class="col-lg-1">
 								<i class="fas fa-sm fa-undo"></i>
@@ -237,7 +235,7 @@
 								<i class="fas fa-sm fa-undo fa-flip-horizontal"></i>
 							</div>
 							<div class="col-lg-3 align-self-center">
-								Direita
+								Right
 							</div>
 							<div class="col-lg-1">
 								<i class="fas fa-sm fa-undo"></i>
@@ -254,7 +252,7 @@
 								<i class="fas fa-sm fa-undo fa-flip-horizontal"></i>
 							</div>
 							<div class="col-lg-3 align-self-center">
-								Esquerda
+								Left
 							</div>
 							<div class="col-lg-1">
 								<i class="fas fa-sm fa-undo"></i>
@@ -271,7 +269,7 @@
 								<i class="fas fa-sm fa-undo fa-flip-horizontal"></i>
 							</div>
 							<div class="col-lg-3 align-self-center">
-								Cima
+								Upper
 							</div>
 							<div class="col-lg-1">
 								<i class="fas fa-sm fa-undo"></i>
@@ -288,7 +286,7 @@
 								<i class="fas fa-sm fa-undo fa-flip-horizontal"></i>
 							</div>
 							<div class="col-lg-3 align-self-center">
-								Baixo
+								Down
 							</div>
 							<div class="col-lg-1">
 								<i class="fas fa-sm fa-undo"></i>
@@ -336,10 +334,10 @@
 	<div class="bg-secondary text-white">
 		<div class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
 			<h2>Fazer upload do arquivo</h2>
-			<p>Extensões permitidas:
+			<p>Extensões permitidas (Tipo de entrada):
 				<strong>{{ allowedExtentions }}</strong>
 			</p>
-			<form method="post" action="/home" enctype="multipart/form-data">
+			<form method="post" action="/home/upload" enctype="multipart/form-data">
 				<div class="input-group mb-3">
 					<div class="custom-file">
 						<input type="file" name="file" class="custom-file-input" id="inputGroupFile01"

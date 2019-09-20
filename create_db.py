@@ -4,10 +4,11 @@ import Database
 with Database.Database('rubik_platform.db') as db:
 
     db.execute("""
-        CREATE TABLE cadastro (
+        CREATE TABLE cadastros (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
             tipo VARCHAR(7) NOT NULL CHECK(tipo IN('admin','usuario')),
             data_adicionado DATETIME NOT NULL,
+            nome VARCHAR(255) NOT NULL,
             usuario VARCHAR(45) NOT NULL,
             senha VARCHAR(45) NOT NULL
         );
@@ -49,11 +50,21 @@ with Database.Database('rubik_platform.db') as db:
     # Inserido dados
 
     # cadastro
-    lista = [('admin', datetime.datetime.now(), 'admin', 'admin')]
+    lista = [('admin', datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), 'Administrador', 'admin', 'admin')]
 
     db.execute_many("""
-    INSERT INTO cadastro (tipo, data_adicionado, usuario, senha)
-    VALUES (?,?,?,?)
+    INSERT INTO cadastros (tipo, data_adicionado, nome, usuario, senha)
+    VALUES (?,?,?,?,?)
+    """, lista)
+
+    lista = [
+            ('py', '/usr/bin/python {!source_code!} < {!intxt!} > {!outtxt!}', 'texto'),
+            ('cpp', '/usr/bin/g++ {!source_code!} -o {!out!} && ./{!out!} < {!intxt!} > {!outtxt!}', 'texto'),
+        ]
+
+    db.execute_many("""
+    INSERT INTO compiladores (extensao, comando, tipoEntrada)
+    VALUES (?,?,?)
     """, lista)
 
     db.commit()

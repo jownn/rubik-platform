@@ -47,24 +47,21 @@
                             </ul>
                         </div>
                         <div id="config">
-                            <div v-for="compiler in compilers">
-                                <div class="row my-3">
-
-                                    <div class="col-md-2">
-                                        <label for="extensao">Extensão <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="Exemplos: py, c, java"></i></label>
-                                        <input type="text" id="extensao" name="extensao" class="form-control" placeholder="py" required value="{% if compilador %}{{compilador.extensao}}{% endif %}" >                                        
-                                    </div>
-                                    <div class="col-md-8">
-                                        <label for="comando">Comando <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="Exemplo: /usr/bin/python2.7 {!source_code!} < !intxt! > {!outtxt!}"></i></label>
-                                        <input type="text" id="comando" name="comando" class="form-control" placeholder="/usr/bin/python2.7 {!source_code!} < {!intxt!} > {!outtxt!}" required value="{% if compilador %}{{compilador.comando}}{% endif %}" >
-                                    </div>
-                                    <div class="col-md-2">
-                                        <label for="entrada">Tipo de entrada <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="Entrada a ser recebida no programa enviado"></i></label>
-                                        <select class="custom-select" name="entrada" id="entrada">
-                                            <option value="texto">Texto</option>
-                                            <option value="json">JSON</option>
-                                        </select>
-                                    </div>
+                            <div class="row my-3">
+                                <div class="col-md-2">
+                                    <label for="extensao">Extensão <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="Exemplos: py, c, java"></i></label>
+                                    <input type="text" id="extensao" name="extensao" class="form-control" placeholder="py" required value="{% if compilador %}{{compilador.extensao}}{% endif %}" >                                        
+                                </div>
+                                <div class="col-md-8">
+                                    <label for="comando">Comando <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="Exemplo: /usr/bin/python2.7 {!source_code!} < !intxt! > {!outtxt!}"></i></label>
+                                    <input type="text" id="comando" name="comando" class="form-control" placeholder="/usr/bin/python2.7 {!source_code!} < {!intxt!} > {!outtxt!}" required value="{% if compilador %}{{compilador.comando}}{% endif %}" >
+                                </div>
+                                <div class="col-md-2">
+                                    <label for="entrada">Tipo de entrada <i class="fas fa-info-circle" data-toggle="tooltip" data-placement="top" title="Entrada a ser recebida no programa enviado"></i></label>
+                                    <select class="custom-select" name="entrada" id="entrada">
+                                        <option value="texto">Texto</option>
+                                        <option value="json">JSON</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="text-center mt-3">

@@ -31,53 +31,110 @@
                 {% endif %}
             {% endwith %}
             <h2 class="text-center mb-3"><strong>Configurações</strong></h2>
+            <div class="card my-5">
+                <div class="card-body">
+                    <h3 class="text-center mb-3">Capturar cores do cubo</h3>
+                    <p class="text-center">Para captura é necessario ter uma camêra conectada e o arduíno rodando</p>
+                    <div class="text-center">
+                        <a class="btn btn-info" onclick="return confirm('Podemos começar a captura?')" href="/configuracoes/capturarCubo">Capturar cubo</a>
+                    </div>
+                </div>
+            </div>
             <div class="card">
                 <div class="card-body">
-                    <form class="form-signin" action="/login" method="POST">
-                        <div class="text-right">
-                            <a class="btn btn-info" href="/adicionarCompilador">Adicionar Compilador</a>
-                        </div>
-                        <h3 class="text-center mb-3">Lista de compiladores</h3>
+                    <div class="text-right">
+                        <a class="btn btn-info" href="/configuracoes/adicionarCompilador">Adicionar Compilador</a>
+                    </div>
+                    <h3 class="text-center mb-3">Lista de compiladores</h3>
 
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Extensão</th>
-                                    <th>Comando</th>
-                                    <th>Tipo de Entrada</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% if compiladores %}
-                                    {% for compilador in compiladores %}
-                                        <tr>
-                                            <td>{{compilador.id}}</td>
-                                            <td>{{compilador.extensao}}</td>
-                                            <td>{{compilador.comando}}</td>
-                                            <td>{{compilador.tipoEntrada}}</td>
-                                            <td> 
-                                                <div class="dropdown">
-                                                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                        Ações
-                                                    </a>
-                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                        <a class="dropdown-item" href="/editarCompilador/{{compilador.id}}"><i class="fas fa-edit"></i> Editar</a>
-                                                        <a class="dropdown-item text-danger" href="/excluirCompilador/{{compilador.id}}" onclick="return confirm('Tem certeza que deseja excluir este compilador?')"><i class="fas fa-trash"></i> Excluir</a>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                {% else %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Extensão</th>
+                                <th>Comando</th>
+                                <th>Tipo de Entrada</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if compiladores %}
+                                {% for compilador in compiladores %}
                                     <tr>
-                                        <td class="text-center" colspan="5">Nenhum registro encontrado</td>
+                                        <td>{{compilador.id}}</td>
+                                        <td>{{compilador.extensao}}</td>
+                                        <td>{{compilador.comando}}</td>
+                                        <td>{{compilador.tipoEntrada}}</td>
+                                        <td> 
+                                            <div class="dropdown">
+                                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Ações
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                    <a class="dropdown-item" href="/configuracoes/editarCompilador/{{compilador.id}}"><i class="fas fa-edit"></i> Editar</a>
+                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCompilador/{{compilador.id}}" onclick="return confirm('Tem certeza que deseja excluir este compilador?')"><i class="fas fa-trash"></i> Excluir</a>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </form>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="text-center" colspan="5">Nenhum registro encontrado</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-5">
+                <div class="card-body">
+                    <div class="text-right">
+                        <a class="btn btn-info" href="/configuracoes/adicionarCadastro">Adicionar Cadastro</a>
+                    </div>
+                    <h3 class="text-center mb-3">Lista de cadastros</h3>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Data Adicionado</th>
+                                <th>Tipo</th>
+                                <th>Nome</th>
+                                <th>Usuário</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if cadastros %}
+                                {% for cadastro in cadastros %}
+                                    <tr>
+                                        <td>{{cadastro.id}}</td>
+                                        <td>{{cadastro.data_adicionado}}</td>
+                                        <td>{{cadastro.tipo}}</td>
+                                        <td>{{cadastro.nome}}</td>
+                                        <td>{{cadastro.usuario}}</td>
+                                        <td> 
+                                            <div class="dropdown">
+                                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Ações
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                    <a class="dropdown-item" href="/configuracoes/editarCadastro/{{cadastro.id}}"><i class="fas fa-edit"></i> Editar</a>
+                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCadastro/{{cadastro.id}}" onclick="return confirm('Tem certeza que deseja excluir este cadastro?')"><i class="fas fa-trash"></i> Excluir</a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="text-center" colspan="6">Nenhum registro encontrado</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

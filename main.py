@@ -3,14 +3,40 @@ from app import app
 from flask import flash, redirect, render_template, request, session, jsonify
 from werkzeug.utils import secure_filename
 import Database
-import solver
+import recoginition
+import datetime
+
+PERMISSIONS = ['home']
 
 
-ALLOWED_EXTENSIONS = ['c', 'py']
+def getExtensions():
+    with Database.Database('rubik_platform.db') as db:
+        extensoes = db.query('SELECT * FROM compiladores')
+    result = []
+    for extensao in extensoes:
+        result.append(extensao["extensao"])
+    return result
 
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    extensions = getExtensions()
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in extensions
+
+
+def getUserLogged():
+    with Database.Database('rubik_platform.db') as db:
+        cadastro = db.query('SELECT * FROM cadastros WHERE id = ?', (session.get('idCadastro'),))
+    return cadastro[0]
+
+
+def permissions(func):
+    if func in PERMISSIONS:
+        return True
+    else:
+        if(getUserLogged()['tipo'] == 'admin'):
+            return True
+        else:
+            return False
 
 
 @app.route('/')
@@ -23,48 +49,42 @@ def home():
     if not session.get('logged_in'):
         return redirect('/login')
     else:
-        if ALLOWED_EXTENSIONS:
+        extensions = getExtensions()
+        if extensions:
             allowedExtentions = '.'
-            for i in range(0, len(ALLOWED_EXTENSIONS)):
-                allowedExtentions += ALLOWED_EXTENSIONS[i]
-                if i < len(ALLOWED_EXTENSIONS)-1:
+            for i in range(0, len(extensions)):
+                allowedExtentions += extensions[i]
+                if i < len(extensions)-1:
                     allowedExtentions += ', .'
         cubo = []
         try:
             nome_arquivo = '../rubik-platform/uploads/input/in_texto.txt'
             arquivo = open(nome_arquivo, 'r+')
-            cores = arquivo.readlines()
+            cores = arquivo.readline()
             arquivo.close()
         except FileNotFoundError:
-            cores = [
-                'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul', 'azul',
-                'laranja', 'laranja', 'laranja', 'laranja', 'laranja', 'laranja', 'laranja', 'laranja', 'laranja',
-                'branco', 'branco', 'branco', 'branco', 'branco', 'branco', 'branco', 'branco', 'branco',
-                'vermelho', 'vermelho', 'vermelho', 'vermelho', 'vermelho', 'vermelho', 'vermelho', 'vermelho', 'vermelho',
-                'verde', 'verde', 'verde', 'verde', 'verde', 'verde', 'verde', 'verde', 'verde',
-                'amarelo', 'amarelo', 'amarelo', 'amarelo', 'amarelo', 'amarelo', 'amarelo', 'amarelo', 'amarelo',
-            ]
-
+            cores = 'bbbbbbbbbooooooooowwwwwwwwwrrrrrrrrrgggggggggyyyyyyyyy'
         estilo = ''
-        for cor in cores:
-            cor = cor.rstrip('\n')
-            if cor == 'azul':
+        for i in range(0, len(cores)):
+            if cores[i] == 'b':
                 estilo = "background-color: blue; color:white;"
-            elif cor == "laranja":
+            elif cores[i] == "o":
                 estilo = "background-color: orange;"
-            elif cor == "branco":
+            elif cores[i] == "w":
                 estilo = "background-color: white;"
-            elif cor == "vermelho":
+            elif cores[i] == "r":
                 estilo = "background-color: red; color:white"
-            elif cor == "verde":
+            elif cores[i] == "g":
                 estilo = "background-color: green; color:white"
-            elif cor == 'amarelo':
+            elif cores[i] == 'y':
                 estilo = "background-color: yellow;"
             cubo.append(estilo)
-        return render_template('main.html', allowedExtentions=allowedExtentions, cubo=cubo)
+
+        cadastro = getUserLogged()
+        return render_template('main.html', allowedExtentions=allowedExtentions, cubo=cubo, cadastro=cadastro)
 
 
-@app.route('/home', methods=['POST'])
+@app.route('/home/upload', methods=['POST'])
 def upload_file():
     if request.method == 'POST':
         dirname = os.path.dirname(__file__)
@@ -106,7 +126,9 @@ def upload_file():
             return redirect('/')
         else:
             flash('Tipo de arquivo não permitido', category='danger')
-            return redirect(request.url)
+            return redirect('/home')
+    else:
+        return redirect('/home')
 
 
 @app.route('/login')
@@ -118,12 +140,13 @@ def login():
 
 
 @app.route('/login', methods=['POST'])
-def do_admin_login():
+def do_login():
     with Database.Database('rubik_platform.db') as db:
         cadastro = db.query(
-            'SELECT * FROM cadastro WHERE usuario = ?', (request.form['username'],))
+            'SELECT * FROM cadastros WHERE usuario = ?', (request.form['username'],))
     if cadastro and request.form['password'] == cadastro[0]['senha']:
         session['logged_in'] = True
+        session['idCadastro'] = cadastro[0]['id']
     else:
         flash('Usuario/Senha incorreta', category='danger')
     return redirect('/')
@@ -139,24 +162,31 @@ def logout():
 def config():
     if not session.get('logged_in'):
         return redirect('/login')
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             compiladores = db.query('SELECT * FROM compiladores')
-        return render_template('config.html', compiladores=compiladores)
+            cadastros = db.query('SELECT * FROM cadastros WHERE id != 1')
+        return render_template('config.html', compiladores=compiladores, cadastros=cadastros)
 
 
-@app.route('/adicionarCompilador')
+@app.route('/configuracoes/adicionarCompilador')
 def adicionarCompilador():
     if not session.get('logged_in'):
         return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
         return render_template('addEditCompilador.html', compilador=False)
 
 
-@app.route('/editarCompilador/<idCompilador>')
+@app.route('/configuracoes/editarCompilador/<idCompilador>')
 def editarCompilador(idCompilador):
     if not session.get('logged_in'):
         return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             compilador = db.query('SELECT * FROM compiladores WHERE id = ?', (idCompilador,))
@@ -167,10 +197,12 @@ def editarCompilador(idCompilador):
             return redirect('/configuracoes')
 
 
-@app.route('/adicionarCompilador', methods=['POST'])
+@app.route('/configuracoes/adicionarCompilador', methods=['POST'])
 def insertCompilador():
     if not session.get('logged_in'):
         return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             db.execute("INSERT INTO compiladores (extensao, comando, tipoEntrada) VALUES (?,?,?)", (request.form['extensao'], request.form['comando'], request.form['entrada'], ))
@@ -178,10 +210,12 @@ def insertCompilador():
     return redirect('/configuracoes')
 
 
-@app.route('/editarCompilador/<idCompilador>', methods=['POST'])
+@app.route('/configuracoes/editarCompilador/<idCompilador>', methods=['POST'])
 def editCompilador(idCompilador):
     if not session.get('logged_in'):
         return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             db.execute("UPDATE compiladores SET extensao = ?, comando = ?, tipoEntrada = ? WHERE id = ?", (request.form['extensao'], request.form['comando'], request.form['entrada'], idCompilador))
@@ -189,10 +223,12 @@ def editCompilador(idCompilador):
     return redirect('/configuracoes')
 
 
-@app.route('/excluirCompilador/<idCompilador>')
+@app.route('/configuracoes/excluirCompilador/<idCompilador>')
 def deleteCompilador(idCompilador):
     if not session.get('logged_in'):
         return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             db.execute('DELETE FROM compiladores WHERE id = ?', (idCompilador,))
@@ -200,12 +236,93 @@ def deleteCompilador(idCompilador):
         return redirect('/configuracoes')
 
 
-@app.route('/capturarCubo/')
+@app.route('/configuracoes/adicionarCadastro')
+def adicionarCadastro():
+    if not session.get('logged_in'):
+        return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
+    else:
+        return render_template('addEditCadastro.html', cadastro=False)
+
+
+@app.route('/configuracoes/editarCadastro/<idCadastro>')
+def editarCadastro(idCadastro):
+    if not session.get('logged_in'):
+        return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
+    else:
+        with Database.Database('rubik_platform.db') as db:
+            cadastro = db.query('SELECT * FROM cadastros WHERE id = ? AND id != 1', (idCadastro,))
+        if cadastro:
+            return render_template('addEditCadastro.html', cadastro=cadastro[0])
+        else:
+            flash('Cadastro não encontrado', category='danger')
+            return redirect('/configuracoes')
+
+
+@app.route('/configuracoes/adicionarCadastro', methods=['POST'])
+def insertCadastro():
+    if not session.get('logged_in'):
+        return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
+    else:
+        with Database.Database('rubik_platform.db') as db:
+            cadastro = db.query('SELECT * FROM cadastros WHERE usuario = ?', (request.form['usuario'],))
+        if cadastro:
+            flash('Usuário já existe', category='danger')
+            return redirect('/configuracoes/adicionarCadastro')
+        with Database.Database('rubik_platform.db') as db:
+            db.execute("INSERT INTO cadastros (tipo, data_adicionado, nome, usuario, senha) VALUES (?,?,?,?,?)", (request.form['tipo'], datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), request.form['nome'], request.form['usuario'], request.form['senha'], ))
+        flash('Cadastro adicionado com sucesso', category='success')
+    return redirect('/configuracoes')
+
+
+@app.route('/configuracoes/editarCadastro/<idCadastro>', methods=['POST'])
+def editCadastro(idCadastro):
+    if not session.get('logged_in'):
+        return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
+    else:
+        with Database.Database('rubik_platform.db') as db:
+            cadastro = db.query('SELECT * FROM cadastros WHERE usuario = ? AND id != ?', (request.form['usuario'], idCadastro,))
+        if cadastro:
+            flash('Usuário já existe', category='danger')
+            return redirect('/configuracoes/adicionarCadastro')
+        with Database.Database('rubik_platform.db') as db:
+            db.execute("UPDATE cadastros SET tipo = ?, nome = ?, usuario = ?, senha = ? WHERE id = ?", (request.form['tipo'], request.form['nome'], request.form['usuario'], request.form['senha'], idCadastro))
+        flash('Cadastro editado com sucesso', category='success')
+    return redirect('/configuracoes')
+
+
+@app.route('/configuracoes/excluirCadastro/<idCadastro>')
+def deleteCadastro(idCadastro):
+    if not session.get('logged_in'):
+        return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
+    else:
+        with Database.Database('rubik_platform.db') as db:
+            db.execute('DELETE FROM cadastros WHERE id = ?', (idCadastro,))
+            flash('Cadastro excluído com sucesso', category='success')
+        return redirect('/configuracoes')
+
+
+@app.route('/configuracoes/capturarCubo/')
 def capturarCubo():
     if not session.get('logged_in'):
         return False
+    elif not permissions(config.__name__):
+        return redirect('/home')
     else:
-        solver.get_cube()
+        try:
+            recoginition.get_cube()
+        except:
+            flash('Ocorreu um erro, verifique as conexões', 'danger')
+            return redirect('/configuracoes')
     return redirect('/configuracoes')
 
 
