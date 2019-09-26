@@ -24,25 +24,24 @@ with Database.Database('rubik_platform.db') as db:
     """)
 
     db.execute("""
-        CREATE TABLE entrada (
+        CREATE TABLE envios (
             id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            data_adicionado DATETIME NOT NULL,
-            arquivo TEXT NOT NULL
-        );
-    """)
-
-    db.execute("""
-        CREATE TABLE teste (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            status INTEGER NOT NULL DEFAULT 1,
+            status INTEGER NOT NULL DEFAULT 0,
             data_adicionado DATETIME NOT NULL,
             idcadastro INTEGER NOT NULL,
             arquivo TEXT NOT NULL,
             extensao VARCHAR(45) NOT NULL,
-            acertou BOOLEAN,
-            qtd_movimentos INT,
             FOREIGN KEY(idcadastro) REFERENCES cadastro(id)
         );
+    """)
+
+    db.execute("""
+        CREATE TABLE fila_robo (
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            data_adicionado DATETIME NOT NULL,
+            idenvio INTEGER NOT NULL,
+            FOREIGN KEY(idenvio) REFERENCES envio(id)
+        )
     """)
 
     print('Tabelas criada com sucesso.')

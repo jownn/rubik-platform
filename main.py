@@ -6,7 +6,7 @@ import Database
 import recoginition
 import datetime
 
-PERMISSIONS = ['home']
+PERMISSIONS = ['home','listaEnvios']
 
 
 def getExtensions():
@@ -16,6 +16,11 @@ def getExtensions():
     for extensao in extensoes:
         result.append(extensao["extensao"])
     return result
+
+
+@app.context_processor
+def context():
+    return dict(cadastroLogado=getUserLogged())
 
 
 def allowed_file(filename):
@@ -56,6 +61,8 @@ def home():
                 allowedExtentions += extensions[i]
                 if i < len(extensions)-1:
                     allowedExtentions += ', .'
+        with Database.Database('rubik_platform.db') as db:
+            extensions = db.query('SELECT * FROM compiladores')
         cubo = []
         try:
             nome_arquivo = '../rubik-platform/uploads/input/in_texto.txt'
@@ -63,7 +70,7 @@ def home():
             cores = arquivo.readline()
             arquivo.close()
         except FileNotFoundError:
-            cores = 'bbbbbbbbbooooooooowwwwwwwwwrrrrrrrrrgggggggggyyyyyyyyy'
+            cores = 'bbbbbbbbbooooooooowwwwwwwwwrrrrrrrrryyyyyyyyyggggggggg'
         estilo = ''
         for i in range(0, len(cores)):
             if cores[i] == 'b':
@@ -81,7 +88,7 @@ def home():
             cubo.append(estilo)
 
         cadastro = getUserLogged()
-        return render_template('main.html', allowedExtentions=allowedExtentions, cubo=cubo, cadastro=cadastro)
+        return render_template('main.html', allowedExtentions=allowedExtentions, extensions=extensions, cubo=cubo, cadastro=cadastro)
 
 
 @app.route('/home/upload', methods=['POST'])
@@ -99,29 +106,13 @@ def upload_file():
             return redirect(request.url)
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(path, filename))
-            filenamewext = filename.rsplit('.', 1)[0].lower()
             ext = filename.rsplit('.', 1)[1].lower()
-            with Database.Database('rubik_platform.db') as db:
-                compiler = db.query(
-                    'SELECT * FROM compiladores WHERE extensao = ? LIMIT 1', (ext,))
-            if compiler:
-                compiler = compiler[0]
-                source_code = "uploads/source_code/" + filename
-                intxt = "uploads/input/in_" + compiler['tipoEntrada'] + ".txt"
-                outtxt = "uploads/output/out_" + filenamewext + ".txt"
-                out = "uploads/source_code/out"
-
-                comando = compiler['comando']
-                comando = comando.replace('{!source_code!}', source_code)
-                comando = comando.replace('{!intxt!}', intxt)
-                comando = comando.replace('{!outtxt!}', outtxt)
-                comando = comando.replace('{!out!}', out)
-
-                os.system(comando)
-
-                flash('File successfully uploaded', category='success')
-            else:
+            file.save(os.path.join(path, filename))
+            try:
+                with Database.Database('rubik_platform.db') as db:
+                    db.execute("INSERT INTO envios (data_adicionado, idcadastro, arquivo, extensao) VALUES (?,?,?,?)", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), session.get('idCadastro'), filename, ext))
+                flash('Arquivo adicionado com sucesso, aguarde a verificação. Para consultar <a href="" class="alert-link">clique aqui</a>.', category='success')
+            except:
                 flash('Erro', category='danger')
             return redirect('/')
         else:
@@ -156,6 +147,21 @@ def do_login():
 def logout():
     session['logged_in'] = False
     return redirect('/')
+
+
+@app.route('/listaEnvios')
+def listaEnvios():
+    if not session.get('logged_in'):
+        return redirect('/login')
+    elif not permissions(config.__name__):
+        return redirect('/home')
+    else:
+        wh = ''
+        if getUserLogged()['tipo'] == 'admin':
+            wh = 'WHERE idcadastro = ' + str(session.get('idCadastro'))
+        with Database.Database('rubik_platform.db') as db:
+            envios = db.query('SELECT * FROM envios ' + wh)
+        return render_template('listaEnvios.html', envios=envios)
 
 
 @app.route('/configuracoes')

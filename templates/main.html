@@ -1,27 +1,4 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-	<link rel="stylesheet" href="/static/bootstrap-4.3.1-dist/css/bootstrap.min.css">
-	<script src="/static/bootstrap-4.3.1-dist/js/bootstrap.min.js"></script>
-	<link rel="stylesheet" href="/static/fontawesome-free-5.10.1-web/css/all.css">
-	<link rel="stylesheet" href="/static/jquery-3.4.1.min.js">
-	<link rel="stylesheet" href="/static/main.css" type="text/css">
-	<script src="/static/vue.js"></script>
-</head>
-
-<body class="bg-light">
-	<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom shadow-sm">
-		<a class="navbar-brand my-0 mr-md-auto" href="/home">
-			<img src="/static/img/LogoRubik.png" height="50" class="d-inline-block align-top" alt="">
-		</a>
-		{% if cadastro.tipo == 'admin' %}
-			<nav class="my-2 my-md-0 mr-md-3">
-				<a class="p-2 text-dark" href="/configuracoes"><i class="fas fa-cogs"></i> Configurações</a>
-			</nav>
-		{% endif %}
-		<a class="btn btn-outline-primary" href="logout">Sair</a>
-	</div>
+{% include 'header.html' %}
 
 	{% with messages = get_flashed_messages(with_categories=true) %}
 		{% if messages %}
@@ -31,7 +8,7 @@
 		{% endif %}
 	{% endwith %}
 
-	<div class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+	<div class="container px-3 py-3 pt-md-5 pb-md-4 mb-3 mx-auto text-center">
 		<h1>Como funciona?</h1>
 		<p>Você monta seu código recebendo as entradas via console e as saídas devem seguir o padrão de
 			movimento.</p>
@@ -308,22 +285,35 @@
 				</div>
 			</div>
 		</div>
-	</div>
-	<div class="container mx-auto mb-5">
 		<h3 class="mt-5 text-center mb-3">Exemplo: </h3>
-		<div class="card">
+		<div class="card text-left">
 			<div class="card-body">
 				<div class="row justify-content-md-center mt-3">
 					<div class="col-md-6 border-right">
 						<h5><strong>Exemplo de entrada:</strong></h5>
 						<small>
-							adsasd
+							{
+							<br>
+							"Upper":    {"0": "o", "1": "w", "2": "g", "3": "y", "4": "y", "5": "b", "6": "b", "7": "b", "8": "b"},
+							<br>
+							"Left":     {"0": "y", "1": "b", "2": "w", "3": "g", "4": "g", "5": "w", "6": "r", "7": "w", "8": "r"},
+							<br>
+							"Front":    {"0": "r", "1": "o", "2": "o", "3": "g", "4": "o", "5": "g", "6": "y", "7": "y", "8": "o"},
+							<br>
+							"Right":    {"0": "w", "1": "r", "2": "o", "3": "o", "4": "b", "5": "o", "6": "w", "7": "y", "8": "g"},
+							<br>
+							"Back":     {"0": "y", "1": "r", "2": "b", "3": "w", "4": "r", "5": "r", "6": "w", "7": "y", "8": "y"},
+							<br>
+							"Down":     {"0": "g", "1": "o", "2": "g", "3": "b", "4": "w", "5": "r", "6": "b", "7": "g", "8": "r"}
+							<br>
+							}
+							<br>
 						</small>
 					</div>
 					<div class="col-md-6">
 						<h5><strong>Exemplo de saída:</strong></h5>
 						<small>
-							asasd
+							L' B' U B' R' L L D' R R B L' F U U B B D F F U D F F B B R R
 						</small>
 					</div>
 				</div>
@@ -331,26 +321,30 @@
 		</div>
 	</div>
 
-	<div class="bg-secondary text-white">
-		<div class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-			<h2>Fazer upload do arquivo</h2>
-			<p>Extensões permitidas (Tipo de entrada):
-				<strong>{{ allowedExtentions }}</strong>
-			</p>
-			<form method="post" action="/home/upload" enctype="multipart/form-data">
-				<div class="input-group mb-3">
-					<div class="custom-file">
-						<input type="file" name="file" class="custom-file-input" id="inputGroupFile01"
+	{% if extensions %}
+		<div class="bg-secondary text-white">
+			<div class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+				<h2>Fazer upload do arquivo</h2>
+				<p>Extensões permitidas (Tipo de entrada):
+						{% for extension in extensions %}
+							<strong>.{{ extension.extensao }}</strong> ({{ extension.tipoEntrada }}),
+						{% endfor %}</p>
+				<form method="post" action="/home/upload" enctype="multipart/form-data">
+					<div class="input-group mb-3">
+						<div class="custom-file">
+							<input type="file" name="file" class="custom-file-input" id="inputGroupFile01"
 							aria-describedby="inputGroupFileAddon01" accept="{{allowedExtentions}}">
-						<label class="custom-file-label" for="inputGroupFile01">Escolher arquivo</label>
+							<label class="custom-file-label" for="inputGroupFile01">Escolher arquivo</label>
+						</div>
 					</div>
-				</div>
-				<div class="text-center">
-					<input class="btn btn-success" type="submit" value="Submit">
-				</div>
-			</form>
+					<div class="text-center">
+						<input class="btn btn-success" type="submit" value="Submit">
+					</div>
+				</form>
+			</div>
 		</div>
-	</div>
+	{% endif %}
+	
 	<div class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
 		<h3>Fila de execução</h3>
 		<table class="table">
@@ -390,27 +384,32 @@
 </html>
 
 <script>
-	var app = new Vue({
-		el: '#config',
-		data: {
-			configs: []
-		},
-		methods : {
-			loadMore : function(evt) {
-				let url = '';
-				this.$http.get(url).then(function(request) {
-					this.informativos = this.informativos.concat(request.body);
-				});
-			},
-			getCount : function() {
-				let url = base_url + 'backoffice/informativos/getCountInformativosAjax';
-				this.$http.get(url).then(function(request) {
-					this.count = request.body.qty;
-				})
-			}
-		},
-		delimiters:['({','})']
-	});
-	app.getCount();
-	app.loadMore();
+	$('#inputGroupFile01').on('change',function(){
+		var fileName = $(this).val();
+		$(this).next('.custom-file-label').html(fileName);
+	})
+
+	// var app = new Vue({
+	// 	el: '#config',
+	// 	data: {
+	// 		configs: []
+	// 	},
+	// 	methods : {
+	// 		loadMore : function(evt) {
+	// 			let url = '';
+	// 			this.$http.get(url).then(function(request) {
+	// 				this.informativos = this.informativos.concat(request.body);
+	// 			});
+	// 		},
+	// 		getCount : function() {
+	// 			let url = base_url + 'backoffice/informativos/getCountInformativosAjax';
+	// 			this.$http.get(url).then(function(request) {
+	// 				this.count = request.body.qty;
+	// 			})
+	// 		}
+	// 	},
+	// 	delimiters:['({','})']
+	// });
+	// app.getCount();
+	// app.loadMore();
 </script>

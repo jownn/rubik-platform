@@ -8,52 +8,36 @@
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            <h2 class="text-center mb-3"><strong>Configurações</strong></h2>
-            <div class="card my-5">
-                <div class="card-body">
-                    <h3 class="text-center mb-3">Capturar cores do cubo</h3>
-                    <p class="text-center">Para captura é necessario ter uma camêra conectada e o arduíno rodando</p>
-                    <div class="text-center">
-                        <a class="btn btn-info" onclick="return confirm('Podemos começar a captura?')" href="/configuracoes/capturarCubo">Capturar cubo</a>
-                    </div>
-                </div>
-            </div>
+            <h2 class="text-center mb-3"><strong>Lista de envios</strong></h2>
             <div class="card">
                 <div class="card-body">
-                    <div class="text-right">
-                        <a class="btn btn-info" href="/configuracoes/adicionarCompilador">Adicionar Compilador</a>
-                    </div>
-                    <h3 class="text-center mb-3">Lista de compiladores</h3>
+                    <h3 class="text-center mb-3">Envio de Arquivos</h3>
 
                     <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
+                                <th>Status</th>
+                                <th>Data Adicionado</th>
+                                <th>Arquivo</th>
                                 <th>Extensão</th>
-                                <th>Comando</th>
-                                <th>Tipo de Entrada</th>
-                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {% if compiladores %}
-                                {% for compilador in compiladores %}
+                            {% if envios %}
+                                {% for envio in envios %}
                                     <tr>
-                                        <td>{{compilador.id}}</td>
-                                        <td>{{compilador.extensao}}</td>
-                                        <td>{{compilador.comando}}</td>
-                                        <td>{{compilador.tipoEntrada}}</td>
-                                        <td> 
-                                            <div class="dropdown">
-                                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Ações
-                                                </a>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                    <a class="dropdown-item" href="/configuracoes/editarCompilador/{{compilador.id}}"><i class="fas fa-edit"></i> Editar</a>
-                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCompilador/{{compilador.id}}" onclick="return confirm('Tem certeza que deseja excluir este compilador?')"><i class="fas fa-trash"></i> Excluir</a>
-                                                </div>
-                                            </div>
-                                        </td>
+                                        <td>{{envio.id}}</td>
+                                        {% if envio.status == 0 %}
+                                            <td><span class="badge badge-warning">Análise Pendente</span></td>
+                                        {% elif envio.status == 1 %}
+                                            <td><span class="badge badge-success">Sucesso</span></td>
+                                        {% elif envio.status == 2 %}
+                                            <td><span class="badge badge-success">Falha</span></td>
+                                        {% endif %}
+                                        <td>{{envio.data_adicionado}}</td>
+                                        <td>{{envio.arquivo}}</td>
+                                        <td>{{envio.extensao}}</td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
@@ -68,12 +52,9 @@
 
             <div class="card mt-5">
                 <div class="card-body">
-                    <div class="text-right">
-                        <a class="btn btn-info" href="/configuracoes/adicionarCadastro">Adicionar Cadastro</a>
-                    </div>
-                    <h3 class="text-center mb-3">Lista de cadastros</h3>
+                    <h3 class="text-center mb-3">Envio para Robô</h3>
 
-                    <table class="table table-striped">
+                    <!-- <table class="table table-striped">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -112,7 +93,7 @@
                                 </tr>
                             {% endif %}
                         </tbody>
-                    </table>
+                    </table> -->
                 </div>
             </div>
         </div>
