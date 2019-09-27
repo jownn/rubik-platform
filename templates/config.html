@@ -115,6 +115,48 @@
                     </table>
                 </div>
             </div>
+
+            <div class="card mt-5">
+                <div class="card-body">
+                    <div class="text-right">
+                        <a class="btn btn-info" href="/configuracoes/gerarNovoEstado">Gerar novo estado</a>
+                    </div>
+                    <h3 class="text-center mb-3">Estados do cubo</h3>
+
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Estado (texto)</th>
+                                <th>Estado (json)</th>
+                                <th>Robô</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if estados %}
+                                {% for estado in estados %}
+                                    <tr>
+                                        <td>{{estado.id}}</td>
+                                        <td>{{estado.estado_texto}}</td>
+                                        <td>{{estado.estado_json}}</td>
+                                        {% if estado.robo %}
+                                            <td><span class="badge badge-success">Sim</span></td>
+                                        {% else %}
+                                            <td><span class="badge badge-danger">Não</span></td>
+                                        {% endif %}
+                                        <td><a class="btn btn-danger" href="/configuracoes/excluirEstado/{{estado.id}}" onclick="return confirm('Tem certeza que deseja excluir este estado?')"><i class="fas fa-trash"></i> Excluir</a></td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="text-center" colspan="4">Nenhum registro encontrado</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </body>

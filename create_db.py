@@ -29,9 +29,18 @@ with Database.Database('rubik_platform.db') as db:
             status INTEGER NOT NULL DEFAULT 0,
             data_adicionado DATETIME NOT NULL,
             idcadastro INTEGER NOT NULL,
-            arquivo TEXT NOT NULL,
+            filename TEXT NOT NULL,
             extensao VARCHAR(45) NOT NULL,
             FOREIGN KEY(idcadastro) REFERENCES cadastro(id)
+        );
+    """)
+
+    db.execute("""
+        CREATE TABLE estados_cubo (
+            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            estado_texto TEXT NOT NULL,
+            estado_json TEXT NOT NULL,
+            robo INTEGER NOT NULL DEFAULT 0
         );
     """)
 

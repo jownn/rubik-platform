@@ -3,6 +3,7 @@ import json
 import numpy as np
 import cv2 as cv
 import serial
+import Database
 
 
 FACES = {
@@ -198,26 +199,12 @@ def get_cube():
 
             if num_face > num_faces:
                 if verifica_cubo():
-                    # texto
-                    try:
-                        nome_arquivo = '../rubik-platform/uploads/input/in_texto.txt'
-                        arquivo = open(nome_arquivo, 'r+')
-                    except FileNotFoundError:
-                        arquivo = open(nome_arquivo, 'w+')
+                    texto = ''
                     for face in CUBO:
                         for color in CUBO[face]:
-                            arquivo.writelines(CUBO[face][color][0])
-                    arquivo.close()
-
-                    # json
-                    try:
-                        nome_arquivo = '../rubik-platform/uploads/input/in_json.txt'
-                        arquivo = open(nome_arquivo, 'r+')
-                    except FileNotFoundError:
-                        arquivo = open(nome_arquivo, 'w+')
-                    arquivo.writelines(json.dumps(CUBO))
-                    arquivo.close()
-
+                            texto += CUBO[face][color][0]
+                    with Database.Database('rubik_platform.db') as db:
+                        db.execute("INSERT INTO estados_cubo (estado_texto, estado_json, robo) VALUES (?,?,?)", (texto, json.dumps(CUBO), 1))
                     break
                 else:
                     num_face = 1

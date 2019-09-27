@@ -33,10 +33,10 @@
                                         {% elif envio.status == 1 %}
                                             <td><span class="badge badge-success">Sucesso</span></td>
                                         {% elif envio.status == 2 %}
-                                            <td><span class="badge badge-success">Falha</span></td>
+                                            <td><span class="badge badge-danger">Falha</span></td>
                                         {% endif %}
                                         <td>{{envio.data_adicionado}}</td>
-                                        <td>{{envio.arquivo}}</td>
+                                        <td>{{envio.filename}}</td>
                                         <td>{{envio.extensao}}</td>
                                     </tr>
                                 {% endfor %}

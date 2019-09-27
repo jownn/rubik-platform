@@ -5,8 +5,10 @@ from werkzeug.utils import secure_filename
 import Database
 import recoginition
 import datetime
+import rubik
+import json
 
-PERMISSIONS = ['home','listaEnvios']
+PERMISSIONS = ['home', 'listaEnvios']
 
 
 def getExtensions():
@@ -31,7 +33,10 @@ def allowed_file(filename):
 def getUserLogged():
     with Database.Database('rubik_platform.db') as db:
         cadastro = db.query('SELECT * FROM cadastros WHERE id = ?', (session.get('idCadastro'),))
-    return cadastro[0]
+    if cadastro:
+        return cadastro[0]
+    else:
+        return False
 
 
 def permissions(func):
@@ -51,6 +56,7 @@ def index():
 
 @app.route('/home')
 def home():
+    func = 'home'
     if not session.get('logged_in'):
         return redirect('/login')
     else:
@@ -88,7 +94,7 @@ def home():
             cubo.append(estilo)
 
         cadastro = getUserLogged()
-        return render_template('main.html', allowedExtentions=allowedExtentions, extensions=extensions, cubo=cubo, cadastro=cadastro)
+        return render_template('main.html', func=func, allowedExtentions=allowedExtentions, extensions=extensions, cubo=cubo, cadastro=cadastro)
 
 
 @app.route('/home/upload', methods=['POST'])
@@ -151,53 +157,58 @@ def logout():
 
 @app.route('/listaEnvios')
 def listaEnvios():
+    func = 'listaEnvios'
     if not session.get('logged_in'):
         return redirect('/login')
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         wh = ''
-        if getUserLogged()['tipo'] == 'admin':
+        if getUserLogged()['tipo'] == 'usuario':
             wh = 'WHERE idcadastro = ' + str(session.get('idCadastro'))
         with Database.Database('rubik_platform.db') as db:
             envios = db.query('SELECT * FROM envios ' + wh)
-        return render_template('listaEnvios.html', envios=envios)
+        return render_template('listaEnvios.html', func=func, envios=envios)
 
 
 @app.route('/configuracoes')
 def config():
+    func = 'config'
     if not session.get('logged_in'):
         return redirect('/login')
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             compiladores = db.query('SELECT * FROM compiladores')
             cadastros = db.query('SELECT * FROM cadastros WHERE id != 1')
-        return render_template('config.html', compiladores=compiladores, cadastros=cadastros)
+            estados = db.query('SELECT * FROM estados_cubo')
+        return render_template('config.html', func=func, compiladores=compiladores, cadastros=cadastros, estados=estados)
 
 
 @app.route('/configuracoes/adicionarCompilador')
 def adicionarCompilador():
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
-        return render_template('addEditCompilador.html', compilador=False)
+        return render_template('addEditCompilador.html', func=func, compilador=False)
 
 
 @app.route('/configuracoes/editarCompilador/<idCompilador>')
 def editarCompilador(idCompilador):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             compilador = db.query('SELECT * FROM compiladores WHERE id = ?', (idCompilador,))
         if compilador:
-            return render_template('addEditCompilador.html', compilador=compilador[0])
+            return render_template('addEditCompilador.html', func=func, compilador=compilador[0])
         else:
             flash('Compilador não encontrado', category='danger')
             return redirect('/configuracoes')
@@ -205,9 +216,10 @@ def editarCompilador(idCompilador):
 
 @app.route('/configuracoes/adicionarCompilador', methods=['POST'])
 def insertCompilador():
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
@@ -218,9 +230,10 @@ def insertCompilador():
 
 @app.route('/configuracoes/editarCompilador/<idCompilador>', methods=['POST'])
 def editCompilador(idCompilador):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
@@ -231,9 +244,10 @@ def editCompilador(idCompilador):
 
 @app.route('/configuracoes/excluirCompilador/<idCompilador>')
 def deleteCompilador(idCompilador):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
@@ -244,25 +258,27 @@ def deleteCompilador(idCompilador):
 
 @app.route('/configuracoes/adicionarCadastro')
 def adicionarCadastro():
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
-        return render_template('addEditCadastro.html', cadastro=False)
+        return render_template('addEditCadastro.html', func=func, cadastro=False)
 
 
 @app.route('/configuracoes/editarCadastro/<idCadastro>')
 def editarCadastro(idCadastro):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
             cadastro = db.query('SELECT * FROM cadastros WHERE id = ? AND id != 1', (idCadastro,))
         if cadastro:
-            return render_template('addEditCadastro.html', cadastro=cadastro[0])
+            return render_template('addEditCadastro.html', func=func, cadastro=cadastro[0])
         else:
             flash('Cadastro não encontrado', category='danger')
             return redirect('/configuracoes')
@@ -270,9 +286,10 @@ def editarCadastro(idCadastro):
 
 @app.route('/configuracoes/adicionarCadastro', methods=['POST'])
 def insertCadastro():
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
@@ -288,9 +305,10 @@ def insertCadastro():
 
 @app.route('/configuracoes/editarCadastro/<idCadastro>', methods=['POST'])
 def editCadastro(idCadastro):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
@@ -306,9 +324,10 @@ def editCadastro(idCadastro):
 
 @app.route('/configuracoes/excluirCadastro/<idCadastro>')
 def deleteCadastro(idCadastro):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
@@ -317,20 +336,57 @@ def deleteCadastro(idCadastro):
         return redirect('/configuracoes')
 
 
-@app.route('/configuracoes/capturarCubo/')
-def capturarCubo():
+@app.route('/configuracoes/excluirEstado/<idEstado>')
+def deleteEstado(idEstado):
+    func = 'config'
     if not session.get('logged_in'):
         return False
-    elif not permissions(config.__name__):
+    elif not permissions(func):
+        return redirect('/home')
+    else:
+        with Database.Database('rubik_platform.db') as db:
+            db.execute('DELETE FROM estados_cubo WHERE id = ?', (idEstado,))
+            flash('Estado excluído com sucesso', category='success')
+        return redirect('/configuracoes')
+
+
+@app.route('/configuracoes/capturarCubo/')
+def capturarCubo():
+    func = 'config'
+    if not session.get('logged_in'):
+        return False
+    elif not permissions(func):
         return redirect('/home')
     else:
         try:
             recoginition.get_cube()
+            flash('Cubo capturado com sucesso', 'success')
         except:
             flash('Ocorreu um erro, verifique as conexões', 'danger')
             return redirect('/configuracoes')
     return redirect('/configuracoes')
 
+
+@app.route('/configuracoes/gerarNovoEstado')
+def gerarNovoEstado():
+    try:
+        cubo = rubik.Rubik()
+        scramble = cubo.scramble_replace(cubo.scramble_gen())
+        scramble = scramble.split(" ")
+        if cubo.validMovements(scramble):
+            for move in scramble:
+                cubo.move(move)
+
+        texto = ''
+        for face in cubo.cube:
+            for color in cubo.cube[face]:
+                texto += cubo.cube[face][color]
+        with Database.Database('rubik_platform.db') as db:
+            db.execute("INSERT INTO estados_cubo (estado_texto, estado_json, robo) VALUES (?,?,?)", (texto, json.dumps(cubo.cube), 0))
+        flash('Novo estado adicionado com sucesso', 'success')
+    except:
+        flash('Ocorreu um erro ao adicionar', 'danger')
+    return redirect('/configuracoes')
 
 if __name__ == "__main__":
     app.run(debug=True)

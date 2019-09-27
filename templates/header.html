@@ -24,21 +24,21 @@
 
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<ul class="navbar-nav mr-auto">
-				<li class="nav-item active ml-2 mr-2">
-					<a class="nav-link" href="main">
+				<li class="nav-item ml-2 mr-2 {{ 'active' if func == 'home' else '' }}">
+					<a class="nav-link" href="/home">
 						<i class="fa fa-home"></i>
 						Home
 					</a>
 				</li>
 				{% if cadastroLogado.tipo == 'admin' %}
-				<li class="nav-item ml-2 mr-2">
+				<li class="nav-item ml-2 mr-2 {{ 'active' if func == 'configuracoes' else '' }}">
 					<a class="nav-link" href="/configuracoes">
 						<i class="fas fa-cogs"></i>
 						Configurações
 					</a>
 				</li>
 				{% endif %}
-				<li class="nav-item ml-2 mr-2">
+				<li class="nav-item ml-2 mr-2 {{ 'active' if func == 'listaEnvios' else '' }}">
 					<a class="nav-link" href="/listaEnvios">
 						<i class="fas fa-file-upload"></i>
 						Lista de envios

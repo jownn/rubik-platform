@@ -232,6 +232,29 @@ class Rubik:
             result += (str(ar[x][0]) + str(ar[x][1]) + " ")
         return result[:-1]
 
+    def finishedCube(self):
+        colors = {}
+        colors['r'] = 0
+        colors['o'] = 0
+        colors['y'] = 0
+        colors['g'] = 0
+        colors['b'] = 0
+        colors['w'] = 0
+        error = 0
+        for face in self.cube:
+            for color in self.cube[face]:
+                try:
+                    color = self.cube[face][color]
+                    colors[color] += 1
+                except NameError:
+                    error = 1
+
+        for color in colors:
+            if(error or colors[color] != 9):
+                return False
+
+        return True
+
 
 # scramble = cubo.scramble_replace(cubo.scramble_gen())
 # scramble = scramble.split(" ")
