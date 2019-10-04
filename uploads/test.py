@@ -1,6 +1,6 @@
 from rubik_solver import utils
 
-cubo = raw_input()
+cubo = input('')
 faces = {}
 faces['upper'] = ''
 faces['left'] = ''

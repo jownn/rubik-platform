@@ -28,7 +28,7 @@ class Rubik:
 
     def move(self, move):
         if move == "U" or move == "U'":
-            moviment = "Upper"
+            movement = "Upper"
             adjacente = {
                 "0": "Left",
                 "1": "Front",
@@ -41,13 +41,13 @@ class Rubik:
                 "Right":    {"0": "0", "1": "1", "2": "2"},
                 "Back":     {"0": "0", "1": "1", "2": "2"}
             }
-            direct = ''
+            direction = ''
             if move == "U":
-                direct = "horario"
+                direction = "horario"
             elif move == "U'":
-                direct = "antihorario"
+                direction = "antihorario"
         elif move == "L" or move == "L'":
-            moviment = "Left"
+            movement = "Left"
             adjacente = {
                 "0": "Back",
                 "1": "Down",
@@ -60,13 +60,13 @@ class Rubik:
                 "Front":    {"0": "6", "1": "3", "2": "0"},
                 "Upper":    {"0": "6", "1": "3", "2": "0"}
             }
-            direct = ''
+            direction = ''
             if move == "L":
-                direct = "horario"
+                direction = "horario"
             elif move == "L'":
-                direct = "antihorario"
+                direction = "antihorario"
         elif move == "F" or move == "F'":
-            moviment = "Front"
+            movement = "Front"
             adjacente = {
                 "0": "Left",
                 "1": "Down",
@@ -79,13 +79,13 @@ class Rubik:
                 "Right":    {"0": "6", "1": "3", "2": "0"},
                 "Upper":    {"0": "8", "1": "7", "2": "6"}
             }
-            direct = ''
+            direction = ''
             if move == "F":
-                direct = "horario"
+                direction = "horario"
             elif move == "F'":
-                direct = "antihorario"
+                direction = "antihorario"
         elif move == "R" or move == "R'":
-            moviment = "Right"
+            movement = "Right"
             adjacente = {
                 "0": "Front",
                 "1": "Down",
@@ -98,13 +98,13 @@ class Rubik:
                 "Back":     {"0": "6", "1": "3", "2": "0"},
                 "Upper":    {"0": "2", "1": "5", "2": "8"}
             }
-            direct = ''
+            direction = ''
             if move == "R":
-                direct = "horario"
+                direction = "horario"
             elif move == "R'":
-                direct = "antihorario"
+                direction = "antihorario"
         elif move == "B" or move == "B'":
-            moviment = "Back"
+            movement = "Back"
             adjacente = {
                 "0": "Right",
                 "1": "Down",
@@ -117,13 +117,13 @@ class Rubik:
                 "Left":     {"0": "6", "1": "3", "2": "0"},
                 "Upper":    {"0": "0", "1": "1", "2": "2"}
             }
-            direct = ''
+            direction = ''
             if move == "B":
-                direct = "horario"
+                direction = "horario"
             elif move == "B'":
-                direct = "antihorario"
+                direction = "antihorario"
         elif move == "D" or move == "D'":
-            moviment = "Down"
+            movement = "Down"
             adjacente = {
                 "0": "Left",
                 "1": "Back",
@@ -136,25 +136,24 @@ class Rubik:
                 "Right":    {"0": "8", "1": "7", "2": "6"},
                 "Front":    {"0": "8", "1": "7", "2": "6"}
             }
-            direct = ''
+            direction = ''
             if move == "D":
-                direct = "horario"
+                direction = "horario"
             elif move == "D'":
-                direct = "antihorario"
-
-        if direct == "horario":
+                direction = "antihorario"
+        if direction == "horario":
             newface = {
-                '0': self.cube[moviment]['6'],
-                '1': self.cube[moviment]['3'],
-                '2': self.cube[moviment]['0'],
-                '3': self.cube[moviment]['7'],
-                '4': self.cube[moviment]['4'],
-                '5': self.cube[moviment]['1'],
-                '6': self.cube[moviment]['8'],
-                '7': self.cube[moviment]['5'],
-                '8': self.cube[moviment]['2']
+                '0': self.cube[movement]['6'],
+                '1': self.cube[movement]['3'],
+                '2': self.cube[movement]['0'],
+                '3': self.cube[movement]['7'],
+                '4': self.cube[movement]['4'],
+                '5': self.cube[movement]['1'],
+                '6': self.cube[movement]['8'],
+                '7': self.cube[movement]['5'],
+                '8': self.cube[movement]['2']
             }
-            self.cube[moviment] = newface
+            self.cube[movement] = newface
             adj = adjacente['0']
             aux = {
                 '0': self.cube[adj][part[adj]['0']],
@@ -173,20 +172,20 @@ class Rubik:
             self.cube[adj][part[adj]['1']] = aux['1']
             self.cube[adj][part[adj]['2']] = aux['2']
 
-        elif direct == "antihorario":
+        elif direction == "antihorario":
             newface = {
-                '0': self.cube[moviment]['2'],
-                '1': self.cube[moviment]['5'],
-                '2': self.cube[moviment]['8'],
-                '3': self.cube[moviment]['1'],
-                '4': self.cube[moviment]['4'],
-                '5': self.cube[moviment]['7'],
-                '6': self.cube[moviment]['0'],
-                '7': self.cube[moviment]['3'],
-                '8': self.cube[moviment]['6']
+                '0': self.cube[movement]['2'],
+                '1': self.cube[movement]['5'],
+                '2': self.cube[movement]['8'],
+                '3': self.cube[movement]['1'],
+                '4': self.cube[movement]['4'],
+                '5': self.cube[movement]['7'],
+                '6': self.cube[movement]['0'],
+                '7': self.cube[movement]['3'],
+                '8': self.cube[movement]['6']
             }
 
-            self.cube[moviment] = newface
+            self.cube[movement] = newface
             adj = adjacente['3']
             aux = {
                 '0': self.cube[adj][part[adj]['0']],

@@ -70,12 +70,11 @@ def home():
         with Database.Database('rubik_platform.db') as db:
             extensions = db.query('SELECT * FROM compiladores')
         cubo = []
-        try:
-            nome_arquivo = '../rubik-platform/uploads/input/in_texto.txt'
-            arquivo = open(nome_arquivo, 'r+')
-            cores = arquivo.readline()
-            arquivo.close()
-        except FileNotFoundError:
+        with Database.Database('rubik_platform.db') as db:
+            estado_cubo = db.query('SELECT * FROM estados_cubo WHERE robo = 1 LIMIT 1')
+        if estado_cubo:
+            cores = estado_cubo[0]['estado_texto']
+        else:
             cores = 'bbbbbbbbbooooooooowwwwwwwwwrrrrrrrrryyyyyyyyyggggggggg'
         estilo = ''
         for i in range(0, len(cores)):
@@ -116,7 +115,7 @@ def upload_file():
             file.save(os.path.join(path, filename))
             try:
                 with Database.Database('rubik_platform.db') as db:
-                    db.execute("INSERT INTO envios (data_adicionado, idcadastro, arquivo, extensao) VALUES (?,?,?,?)", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), session.get('idCadastro'), filename, ext))
+                    db.execute("INSERT INTO envios (data_adicionado, idcadastro, filename, extensao) VALUES (?,?,?,?)", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), session.get('idCadastro'), filename, ext))
                 flash('Arquivo adicionado com sucesso, aguarde a verificação. Para consultar <a href="" class="alert-link">clique aqui</a>.', category='success')
             except:
                 flash('Erro', category='danger')
