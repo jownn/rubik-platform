@@ -24,17 +24,17 @@
                                 </div>
                                 <div class="col-md-10">
                                     <label for="nome">Nome</label>
-                                    <input type="text" id="nome" name="nome" class="form-control" placeholder="João das neves" required value="{% if cadastro %}{{cadastro.nome}}{% endif %}" >                                        
+                                    <input type="text" id="nome" name="nome" class="form-control" placeholder="João das neves" required value="{% if cadastro %}{{cadastro.cad_nome}}{% endif %}" >                                        
                                 </div>
                             </div>
                             <div class="row my-3">
                                 <div class="col-md-6">
                                     <label for="usuario">Usuário</label>
-                                    <input type="text" id="usuario" name="usuario" class="form-control" placeholder="joao" required value="{% if cadastro %}{{cadastro.usuario}}{% endif %}" >
+                                    <input type="text" id="usuario" name="usuario" class="form-control" placeholder="joao" required value="{% if cadastro %}{{cadastro.cad_usuario}}{% endif %}" >
                                 </div>
                                 <div class="col-md-6">
                                     <label for="senha">Senha</label>
-                                    <input type="password" id="senha" name="senha" class="form-control" required value="{% if cadastro %}{{cadastro.senha}}{% endif %}" >
+                                    <input type="password" id="senha" name="senha" class="form-control" required value="{% if cadastro %}{{cadastro.cad_senha}}{% endif %}" >
                                 </div>
                             </div>
                             <div class="text-center mt-3">

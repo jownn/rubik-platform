@@ -1,6 +1,6 @@
 import os
 from app import app
-from flask import flash, redirect, render_template, request, session, jsonify
+from flask import flash, redirect, render_template, request, session, jsonify, Markup
 from werkzeug.utils import secure_filename
 import Database
 import recoginition
@@ -16,7 +16,7 @@ def getExtensions():
         extensoes = db.query('SELECT * FROM compiladores')
     result = []
     for extensao in extensoes:
-        result.append(extensao["extensao"])
+        result.append(extensao["com_extensao"])
     return result
 
 
@@ -32,7 +32,7 @@ def allowed_file(filename):
 
 def getUserLogged():
     with Database.Database('rubik_platform.db') as db:
-        cadastro = db.query('SELECT * FROM cadastros WHERE id = ?', (session.get('idCadastro'),))
+        cadastro = db.query('SELECT * FROM cadastros WHERE cad_id = ?', (session.get('idCadastro'),))
     if cadastro:
         return cadastro[0]
     else:
@@ -43,7 +43,7 @@ def permissions(func):
     if func in PERMISSIONS:
         return True
     else:
-        if(getUserLogged()['tipo'] == 'admin'):
+        if(getUserLogged()['cad_tipo'] == 'admin'):
             return True
         else:
             return False
@@ -71,11 +71,11 @@ def home():
             extensions = db.query('SELECT * FROM compiladores')
         cubo = []
         with Database.Database('rubik_platform.db') as db:
-            estado_cubo = db.query('SELECT * FROM estados_cubo WHERE robo = 1 LIMIT 1')
+            estado_cubo = db.query('SELECT * FROM estados_cubo WHERE cub_robo = 1 LIMIT 1')
         if estado_cubo:
-            cores = estado_cubo[0]['estado_texto']
+            cores = estado_cubo[0]['cub_estado_texto']
         else:
-            cores = 'bbbbbbbbbooooooooowwwwwwwwwrrrrrrrrryyyyyyyyyggggggggg'
+            cores = 'yyyyyyyyybbbbbbbbbrrrrrrrrrgggggggggooooooooowwwwwwwww'
         estilo = ''
         for i in range(0, len(cores)):
             if cores[i] == 'b':
@@ -115,8 +115,8 @@ def upload_file():
             file.save(os.path.join(path, filename))
             try:
                 with Database.Database('rubik_platform.db') as db:
-                    db.execute("INSERT INTO envios (data_adicionado, idcadastro, filename, extensao) VALUES (?,?,?,?)", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), session.get('idCadastro'), filename, ext))
-                flash('Arquivo adicionado com sucesso, aguarde a verificação. Para consultar <a href="" class="alert-link">clique aqui</a>.', category='success')
+                    db.execute("INSERT INTO envios (env_data_adicionado, env_idcadastro, env_filename, env_extensao) VALUES (?,?,?,?)", (datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), session.get('idCadastro'), filename, ext))
+                flash(Markup('Arquivo adicionado com sucesso, aguarde a verificação. Para consultar <a href="/listaEnvios" class="alert-link">clique aqui</a>.'), category='success')
             except:
                 flash('Erro', category='danger')
             return redirect('/')
@@ -139,10 +139,10 @@ def login():
 def do_login():
     with Database.Database('rubik_platform.db') as db:
         cadastro = db.query(
-            'SELECT * FROM cadastros WHERE usuario = ?', (request.form['username'],))
-    if cadastro and request.form['password'] == cadastro[0]['senha']:
+            'SELECT * FROM cadastros WHERE cad_usuario = ?', (request.form['username'],))
+    if cadastro and request.form['password'] == cadastro[0]['cad_senha']:
         session['logged_in'] = True
-        session['idCadastro'] = cadastro[0]['id']
+        session['idCadastro'] = cadastro[0]['cad_id']
     else:
         flash('Usuario/Senha incorreta', category='danger')
     return redirect('/')
@@ -163,11 +163,35 @@ def listaEnvios():
         return redirect('/home')
     else:
         wh = ''
-        if getUserLogged()['tipo'] == 'usuario':
-            wh = 'WHERE idcadastro = ' + str(session.get('idCadastro'))
+        if getUserLogged()['cad_tipo'] == 'usuario':
+            wh = 'WHERE e.idcadastro = ' + str(session.get('idCadastro'))
         with Database.Database('rubik_platform.db') as db:
             envios = db.query('SELECT * FROM envios ' + wh)
-        return render_template('listaEnvios.html', func=func, envios=envios)
+        with Database.Database('rubik_platform.db') as db:
+            enviosRobo = db.query('SELECT * FROM fila_robo JOIN envios ON env_id = rob_idenvio ' + wh)
+        return render_template('listaEnvios.html', func=func, envios=envios, enviosRobo=enviosRobo)
+
+
+@app.route('/listaEnvios/enviarRobo/<idEnvio>')
+def enviarRobo(idEnvio):
+    func = 'listaEnvios'
+    if not session.get('logged_in'):
+        return redirect('/login')
+    elif not permissions(func):
+        return redirect('/home')
+    else:
+        try:
+            with Database.Database('rubik_platform.db') as db:
+                envioRobo = db.query('SELECT * FROM fila_robo WHERE rob_idenvio = ' + idEnvio)
+            if(not envioRobo):
+                with Database.Database('rubik_platform.db') as db:
+                    db.execute("INSERT INTO fila_robo (rob_status, rob_data_adicionado, rob_idenvio) VALUES (?,?,?)", (0, datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), idEnvio))
+                flash('Arquivo adicionado na fila com sucesso', category='success')
+            else:
+                flash('Envio já existente na fila', category='danger')
+        except:
+            flash('Erro', category='danger')
+        return redirect('/listaEnvios')
 
 
 @app.route('/configuracoes')
@@ -180,7 +204,7 @@ def config():
     else:
         with Database.Database('rubik_platform.db') as db:
             compiladores = db.query('SELECT * FROM compiladores')
-            cadastros = db.query('SELECT * FROM cadastros WHERE id != 1')
+            cadastros = db.query('SELECT * FROM cadastros WHERE cad_id != 1')
             estados = db.query('SELECT * FROM estados_cubo')
         return render_template('config.html', func=func, compiladores=compiladores, cadastros=cadastros, estados=estados)
 
@@ -205,7 +229,7 @@ def editarCompilador(idCompilador):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            compilador = db.query('SELECT * FROM compiladores WHERE id = ?', (idCompilador,))
+            compilador = db.query('SELECT * FROM compiladores WHERE com_id = ?', (idCompilador,))
         if compilador:
             return render_template('addEditCompilador.html', func=func, compilador=compilador[0])
         else:
@@ -222,7 +246,7 @@ def insertCompilador():
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            db.execute("INSERT INTO compiladores (extensao, comando, tipoEntrada) VALUES (?,?,?)", (request.form['extensao'], request.form['comando'], request.form['entrada'], ))
+            db.execute("INSERT INTO compiladores (com_extensao, com_comando, com_tipoEntrada) VALUES (?,?,?)", (request.form['extensao'], request.form['comando'], request.form['entrada'], ))
         flash('Compilador adicionado com sucesso', category='success')
     return redirect('/configuracoes')
 
@@ -236,7 +260,7 @@ def editCompilador(idCompilador):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            db.execute("UPDATE compiladores SET extensao = ?, comando = ?, tipoEntrada = ? WHERE id = ?", (request.form['extensao'], request.form['comando'], request.form['entrada'], idCompilador))
+            db.execute("UPDATE compiladores SET com_extensao = ?, com_comando = ?, com_tipoEntrada = ? WHERE com_id = ?", (request.form['extensao'], request.form['comando'], request.form['entrada'], idCompilador))
         flash('Compilador editado com sucesso', category='success')
     return redirect('/configuracoes')
 
@@ -250,7 +274,7 @@ def deleteCompilador(idCompilador):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            db.execute('DELETE FROM compiladores WHERE id = ?', (idCompilador,))
+            db.execute('DELETE FROM compiladores WHERE com_id = ?', (idCompilador,))
             flash('Compilador excluído com sucesso', category='success')
         return redirect('/configuracoes')
 
@@ -275,7 +299,7 @@ def editarCadastro(idCadastro):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            cadastro = db.query('SELECT * FROM cadastros WHERE id = ? AND id != 1', (idCadastro,))
+            cadastro = db.query('SELECT * FROM cadastros WHERE cad_id = ? AND cad_id != 1', (idCadastro,))
         if cadastro:
             return render_template('addEditCadastro.html', func=func, cadastro=cadastro[0])
         else:
@@ -292,12 +316,12 @@ def insertCadastro():
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            cadastro = db.query('SELECT * FROM cadastros WHERE usuario = ?', (request.form['usuario'],))
+            cadastro = db.query('SELECT * FROM cadastros WHERE cad_usuario = ?', (request.form['usuario'],))
         if cadastro:
             flash('Usuário já existe', category='danger')
             return redirect('/configuracoes/adicionarCadastro')
         with Database.Database('rubik_platform.db') as db:
-            db.execute("INSERT INTO cadastros (tipo, data_adicionado, nome, usuario, senha) VALUES (?,?,?,?,?)", (request.form['tipo'], datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), request.form['nome'], request.form['usuario'], request.form['senha'], ))
+            db.execute("INSERT INTO cadastros (cad_tipo, cad_data_adicionado, cad_nome, cad_usuario, cad_senha) VALUES (?,?,?,?,?)", (request.form['tipo'], datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), request.form['nome'], request.form['usuario'], request.form['senha'], ))
         flash('Cadastro adicionado com sucesso', category='success')
     return redirect('/configuracoes')
 
@@ -311,12 +335,12 @@ def editCadastro(idCadastro):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            cadastro = db.query('SELECT * FROM cadastros WHERE usuario = ? AND id != ?', (request.form['usuario'], idCadastro,))
+            cadastro = db.query('SELECT * FROM cadastros WHERE cad_usuario = ? AND cad_id != ?', (request.form['usuario'], idCadastro,))
         if cadastro:
             flash('Usuário já existe', category='danger')
             return redirect('/configuracoes/adicionarCadastro')
         with Database.Database('rubik_platform.db') as db:
-            db.execute("UPDATE cadastros SET tipo = ?, nome = ?, usuario = ?, senha = ? WHERE id = ?", (request.form['tipo'], request.form['nome'], request.form['usuario'], request.form['senha'], idCadastro))
+            db.execute("UPDATE cadastros SET cad_tipo = ?, cad_nome = ?, cad_usuario = ?, cad_senha = ? WHERE cad_id = ?", (request.form['tipo'], request.form['nome'], request.form['usuario'], request.form['senha'], idCadastro))
         flash('Cadastro editado com sucesso', category='success')
     return redirect('/configuracoes')
 
@@ -330,7 +354,7 @@ def deleteCadastro(idCadastro):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            db.execute('DELETE FROM cadastros WHERE id = ?', (idCadastro,))
+            db.execute('DELETE FROM cadastros WHERE cad_id = ?', (idCadastro,))
             flash('Cadastro excluído com sucesso', category='success')
         return redirect('/configuracoes')
 
@@ -344,7 +368,7 @@ def deleteEstado(idEstado):
         return redirect('/home')
     else:
         with Database.Database('rubik_platform.db') as db:
-            db.execute('DELETE FROM estados_cubo WHERE id = ?', (idEstado,))
+            db.execute('DELETE FROM estados_cubo WHERE cub_id = ?', (idEstado,))
             flash('Estado excluído com sucesso', category='success')
         return redirect('/configuracoes')
 
@@ -381,11 +405,25 @@ def gerarNovoEstado():
             for color in cubo.cube[face]:
                 texto += cubo.cube[face][color]
         with Database.Database('rubik_platform.db') as db:
-            db.execute("INSERT INTO estados_cubo (estado_texto, estado_json, robo) VALUES (?,?,?)", (texto, json.dumps(cubo.cube), 0))
+            db.execute("INSERT INTO estados_cubo (cub_estado_texto, cub_estado_json, cub_robo) VALUES (?,?,?)", (texto, json.dumps(cubo.cube), 0))
         flash('Novo estado adicionado com sucesso', 'success')
     except:
         flash('Ocorreu um erro ao adicionar', 'danger')
     return redirect('/configuracoes')
 
+
+@app.route('/getEnvios')
+def getEnvios():
+    if not session.get('logged_in'):
+        return jsonify(False)
+    else:
+        with Database.Database('rubik_platform.db') as db:
+            enviosRobo = db.query('SELECT * FROM fila_robo JOIN envios ON env_id = rob_idenvio')
+        if enviosRobo:
+            return jsonify(enviosRobo)
+        else:
+            return jsonify(False)
+
+
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=False)

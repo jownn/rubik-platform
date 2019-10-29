@@ -13,22 +13,26 @@ O Kit educacional (robô)
 
 ### Instalação
 
-    Recomendavel a utilização de um virtual virtual environment
-    ```
-        * python3 -m venv 'caminho e nome do venv'
-    ```
+Obs.: É necessário antes de instalar este projeto, ter instalado: 
+* Docker e o Docker-compose
 
-    Para as dependencias
-    ```
-    * pip install -r requirements.txt
-    ```
+Para instalá-lo em sua máquina faça os comandos a seguir:
 
-    Para início
-    ```
-    * Executar o arquivo create_db.py para criar o banco novo
-    ```
+``` bash
+  git clone https://github.com/jownn/rubik-platform.git
+  cd rubik-platform
+  docker-compose build
+  docker-compose up
+```
+
+Para resetar o docker com o banco:
+
+``` bash
+    docker-compose down --rmi all -v --remove-orphans
+```
 
 ### Utilização
 
+    Link para acesso: http://0.0.0.0:5000/
     O usuario padrão é o admin:admin
     As demais utilizações são explicadas na tela inicial

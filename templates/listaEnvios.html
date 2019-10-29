@@ -21,69 +21,35 @@
                                 <th>Data Adicionado</th>
                                 <th>Arquivo</th>
                                 <th>Extensão</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% if envios %}
                                 {% for envio in envios %}
                                     <tr>
-                                        <td>{{envio.id}}</td>
-                                        {% if envio.status == 0 %}
+                                        <td>{{envio.env_id}}</td>
+                                        {% if envio.env_status == 0 %}
                                             <td><span class="badge badge-warning">Análise Pendente</span></td>
-                                        {% elif envio.status == 1 %}
+                                        {% elif envio.env_status == 1 %}
                                             <td><span class="badge badge-success">Sucesso</span></td>
-                                        {% elif envio.status == 2 %}
+                                        {% elif envio.env_status == 2 %}
                                             <td><span class="badge badge-danger">Falha</span></td>
                                         {% endif %}
-                                        <td>{{envio.data_adicionado}}</td>
-                                        <td>{{envio.filename}}</td>
-                                        <td>{{envio.extensao}}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td class="text-center" colspan="5">Nenhum registro encontrado</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card mt-5">
-                <div class="card-body">
-                    <h3 class="text-center mb-3">Envio para Robô</h3>
-
-                    <!-- <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Data Adicionado</th>
-                                <th>Tipo</th>
-                                <th>Nome</th>
-                                <th>Usuário</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if cadastros %}
-                                {% for cadastro in cadastros %}
-                                    <tr>
-                                        <td>{{cadastro.id}}</td>
-                                        <td>{{cadastro.data_adicionado}}</td>
-                                        <td>{{cadastro.tipo}}</td>
-                                        <td>{{cadastro.nome}}</td>
-                                        <td>{{cadastro.usuario}}</td>
+                                        <td>{{envio.env_data_adicionado}}</td>
+                                        <td>{{envio.env_filename}}</td>
+                                        <td>{{envio.env_extensao}}</td>
                                         <td> 
-                                            <div class="dropdown">
-                                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                    Ações
-                                                </a>
-                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                    <a class="dropdown-item" href="/configuracoes/editarCadastro/{{cadastro.id}}"><i class="fas fa-edit"></i> Editar</a>
-                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCadastro/{{cadastro.id}}" onclick="return confirm('Tem certeza que deseja excluir este cadastro?')"><i class="fas fa-trash"></i> Excluir</a>
+                                            {% if envio.env_status == 1 %}
+                                                <div class="dropdown">
+                                                    <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                        Ações
+                                                    </a>
+                                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                        <a class="dropdown-item" href="/listaEnvios/enviarRobo/{{envio.env_id}}"><i class="fa fa-file-import"></i> Enviar para o robô</a>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -93,7 +59,50 @@
                                 </tr>
                             {% endif %}
                         </tbody>
-                    </table> -->
+                    </table>
+                </div>
+            </div>
+
+            <div class="card mt-5">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <h3>Envios para Robô</h3>
+                        <small><strong>*O envio ocorre de forma periódica mediante uma fila, aguarde a execução.</strong></small>
+                    </div>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Status</th>
+                                <th>Data Adicionado</th>
+                                <th>ID do envio</th>
+                                <th>Arquivo</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if enviosRobo %}
+                                {% for robo in enviosRobo %}
+                                    <tr>
+                                        <td>{{robo.rob_id}}</td>
+                                        {% if robo.rob_status == 0 %}
+                                            <td><span class="badge badge-warning">Envio Pendente</span></td>
+                                        {% elif robo.rob_status == 1 %}
+                                            <td><span class="badge badge-info">Executando</span></td>
+                                        {% elif robo.rob_status == 2 %}
+                                            <td><span class="badge badge-success">Finalizado</span></td>
+                                        {% endif %}
+                                        <td>{{robo.rob_data_adicionado}}</td>
+                                        <td>{{robo.rob_idenvio}}</td>
+                                        <td>{{robo.env_filename}}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="text-center" colspan="5">Nenhum registro encontrado</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

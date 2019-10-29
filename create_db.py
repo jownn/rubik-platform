@@ -5,51 +5,52 @@ with Database.Database('rubik_platform.db') as db:
 
     db.execute("""
         CREATE TABLE cadastros (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            tipo VARCHAR(7) NOT NULL CHECK(tipo IN('admin','usuario')),
-            data_adicionado DATETIME NOT NULL,
-            nome VARCHAR(255) NOT NULL,
-            usuario VARCHAR(45) NOT NULL,
-            senha VARCHAR(45) NOT NULL
+            cad_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            cad_tipo VARCHAR(7) NOT NULL CHECK(cad_tipo IN('admin','usuario')),
+            cad_data_adicionado DATETIME NOT NULL,
+            cad_nome VARCHAR(255) NOT NULL,
+            cad_usuario VARCHAR(45) NOT NULL,
+            cad_senha VARCHAR(45) NOT NULL
         );
     """)
 
     db.execute("""
         CREATE TABLE compiladores (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            extensao varchar(45) NOT NULL,
-            comando TEXT NOT NULL,
-            tipoEntrada VARCHAR(5) NOT NULL CHECK(tipoEntrada IN('texto','json'))
+            com_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            com_extensao varchar(45) NOT NULL,
+            com_comando TEXT NOT NULL,
+            com_tipoEntrada VARCHAR(5) NOT NULL CHECK(com_tipoEntrada IN('texto','json'))
         );
     """)
 
     db.execute("""
         CREATE TABLE envios (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            status INTEGER NOT NULL DEFAULT 0,
-            data_adicionado DATETIME NOT NULL,
-            idcadastro INTEGER NOT NULL,
-            filename TEXT NOT NULL,
-            extensao VARCHAR(45) NOT NULL,
-            FOREIGN KEY(idcadastro) REFERENCES cadastro(id)
+            env_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            env_status INTEGER NOT NULL DEFAULT 0,
+            env_data_adicionado DATETIME NOT NULL,
+            env_idcadastro INTEGER NOT NULL,
+            env_filename TEXT NOT NULL,
+            env_extensao VARCHAR(45) NOT NULL,
+            FOREIGN KEY(env_idcadastro) REFERENCES cadastro(cad_id)
         );
     """)
 
     db.execute("""
         CREATE TABLE estados_cubo (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            estado_texto TEXT NOT NULL,
-            estado_json TEXT NOT NULL,
-            robo INTEGER NOT NULL DEFAULT 0
+            cub_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            cub_estado_texto TEXT NOT NULL,
+            cub_estado_json TEXT NOT NULL,
+            cub_robo INTEGER NOT NULL DEFAULT 0
         );
     """)
 
     db.execute("""
         CREATE TABLE fila_robo (
-            id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-            data_adicionado DATETIME NOT NULL,
-            idenvio INTEGER NOT NULL,
-            FOREIGN KEY(idenvio) REFERENCES envio(id)
+            rob_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+            rob_status INTEGER NOT NULL DEFAULT 0,
+            rob_data_adicionado DATETIME NOT NULL,
+            rob_idenvio INTEGER NOT NULL,
+            FOREIGN KEY(rob_idenvio) REFERENCES envio(env_id)
         )
     """)
 
@@ -61,17 +62,17 @@ with Database.Database('rubik_platform.db') as db:
     lista = [('admin', datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S"), 'Administrador', 'admin', 'admin')]
 
     db.execute_many("""
-    INSERT INTO cadastros (tipo, data_adicionado, nome, usuario, senha)
+    INSERT INTO cadastros (cad_tipo, cad_data_adicionado, cad_nome, cad_usuario, cad_senha)
     VALUES (?,?,?,?,?)
     """, lista)
 
     lista = [
-            ('py', '/usr/bin/python {!source_code!} < {!intxt!} > {!outtxt!}', 'texto'),
-            ('cpp', '/usr/bin/g++ {!source_code!} -o {!out!} && ./{!out!} < {!intxt!} > {!outtxt!}', 'texto'),
+            ('py', 'python {!source_code!} < {!intxt!} > {!outtxt!}', 'texto'),
+            ('cpp', 'g++ {!source_code!} -o {!out!} && ./{!out!} < {!intxt!} > {!outtxt!}', 'texto'),
         ]
 
     db.execute_many("""
-    INSERT INTO compiladores (extensao, comando, tipoEntrada)
+    INSERT INTO compiladores (com_extensao, com_comando, com_tipoEntrada)
     VALUES (?,?,?)
     """, lista)
 

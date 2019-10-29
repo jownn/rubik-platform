@@ -343,7 +343,7 @@
 				<h2>Fazer upload do arquivo</h2>
 				<p>Extensões permitidas (Tipo de entrada):
 						{% for extension in extensions %}
-							<strong>.{{ extension.extensao }}</strong> ({{ extension.tipoEntrada }}),
+							<strong>.{{ extension.com_extensao }}</strong> ({{ extension.com_tipoEntrada }}),
 						{% endfor %}</p>
 				<form method="post" action="/home/upload" enctype="multipart/form-data">
 					<div class="input-group mb-3">
@@ -361,36 +361,30 @@
 		</div>
 	{% endif %}
 	
-	<div class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-		<h3>Fila de execução</h3>
+	<div id="filaexec" class="container px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+		<h3>Fila de execução <small class="text-secondary">(Verificando em: <span id=counterShow></span> segundos)</small></h3>
 		<table class="table">
 			<thead class="thead-light">
 				<tr>
-					<th scope="col">#</th>
-					<th scope="col">First</th>
-					<th scope="col">Last</th>
-					<th scope="col">Handle</th>
+					<th>#</th>
+					<th>Status</th>
+					<th>Data Adicionado</th>
+					<th>ID do envio</th>
+					<th>Arquivo</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr>
-					<th scope="row">1</th>
-					<td>Mark</td>
-					<td>Otto</td>
-					<td>@mdo</td>
-				</tr>
-				<tr>
-					<th scope="row">2</th>
-					<td>Jacob</td>
-					<td>Thornton</td>
-					<td>@fat</td>
-				</tr>
-				<tr>
-					<th scope="row">3</th>
-					<td>Larry</td>
-					<td>the Bird</td>
-					<td>@twitter</td>
-				</tr>
+				<template v-for="fila in filaExecucao">
+					<tr>
+						<td>({fila.rob_id})</td>
+						<td v-if="fila.rob_status == 0"><span class="badge badge-warning">Envio Pendente</span></td>
+						<td v-if="fila.rob_status == 1"><span class="badge badge-info">Executando</span></td>
+						<td v-if="fila.rob_status == 2"><span class="badge badge-success">Finalizado</span></td>
+						<td>({fila.rob_data_adicionado})</td>
+						<td>({fila.rob_idenvio})</td>
+						<td>({fila.env_filename})</td>
+					</tr>
+				<template>
 			</tbody>
 		</table>
 	</div>
@@ -398,34 +392,3 @@
 </body>
 
 </html>
-
-<script>
-	$('#inputGroupFile01').on('change',function(){
-		var fileName = $(this).val();
-		$(this).next('.custom-file-label').html(fileName);
-	})
-
-	// var app = new Vue({
-	// 	el: '#config',
-	// 	data: {
-	// 		configs: []
-	// 	},
-	// 	methods : {
-	// 		loadMore : function(evt) {
-	// 			let url = '';
-	// 			this.$http.get(url).then(function(request) {
-	// 				this.informativos = this.informativos.concat(request.body);
-	// 			});
-	// 		},
-	// 		getCount : function() {
-	// 			let url = base_url + 'backoffice/informativos/getCountInformativosAjax';
-	// 			this.$http.get(url).then(function(request) {
-	// 				this.count = request.body.qty;
-	// 			})
-	// 		}
-	// 	},
-	// 	delimiters:['({','})']
-	// });
-	// app.getCount();
-	// app.loadMore();
-</script>

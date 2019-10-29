@@ -39,18 +39,18 @@
                             {% if compiladores %}
                                 {% for compilador in compiladores %}
                                     <tr>
-                                        <td>{{compilador.id}}</td>
-                                        <td>{{compilador.extensao}}</td>
-                                        <td>{{compilador.comando}}</td>
-                                        <td>{{compilador.tipoEntrada}}</td>
+                                        <td>{{compilador.com_id}}</td>
+                                        <td>{{compilador.com_extensao}}</td>
+                                        <td>{{compilador.com_comando}}</td>
+                                        <td>{{compilador.com_tipoEntrada}}</td>
                                         <td> 
                                             <div class="dropdown">
                                                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     Ações
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                    <a class="dropdown-item" href="/configuracoes/editarCompilador/{{compilador.id}}"><i class="fas fa-edit"></i> Editar</a>
-                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCompilador/{{compilador.id}}" onclick="return confirm('Tem certeza que deseja excluir este compilador?')"><i class="fas fa-trash"></i> Excluir</a>
+                                                    <a class="dropdown-item" href="/configuracoes/editarCompilador/{{compilador.com_id}}"><i class="fas fa-edit"></i> Editar</a>
+                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCompilador/{{compilador.com_id}}" onclick="return confirm('Tem certeza que deseja excluir este compilador?')"><i class="fas fa-trash"></i> Excluir</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -88,19 +88,19 @@
                             {% if cadastros %}
                                 {% for cadastro in cadastros %}
                                     <tr>
-                                        <td>{{cadastro.id}}</td>
-                                        <td>{{cadastro.data_adicionado}}</td>
-                                        <td>{{cadastro.tipo}}</td>
-                                        <td>{{cadastro.nome}}</td>
-                                        <td>{{cadastro.usuario}}</td>
-                                        <td> 
+                                        <td>{{cadastro.cad_id}}</td>
+                                        <td>{{cadastro.cad_data_adicionado}}</td>
+                                        <td>{{cadastro.cad_tipo}}</td>
+                                        <td>{{cadastro.cad_nome}}</td>
+                                        <td>{{cadastro.cad_usuario}}</td>
+                                        <td>
                                             <div class="dropdown">
                                                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                     Ações
                                                 </a>
                                                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                                                    <a class="dropdown-item" href="/configuracoes/editarCadastro/{{cadastro.id}}"><i class="fas fa-edit"></i> Editar</a>
-                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCadastro/{{cadastro.id}}" onclick="return confirm('Tem certeza que deseja excluir este cadastro?')"><i class="fas fa-trash"></i> Excluir</a>
+                                                    <a class="dropdown-item" href="/configuracoes/editarCadastro/{{cadastro.cad_id}}"><i class="fas fa-edit"></i> Editar</a>
+                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirCadastro/{{cadastro.cad_id}}" onclick="return confirm('Tem certeza que deseja excluir este cadastro?')"><i class="fas fa-trash"></i> Excluir</a>
                                                 </div>
                                             </div>
                                         </td>
@@ -137,20 +137,29 @@
                             {% if estados %}
                                 {% for estado in estados %}
                                     <tr>
-                                        <td>{{estado.id}}</td>
-                                        <td>{{estado.estado_texto}}</td>
-                                        <td>{{estado.estado_json}}</td>
-                                        {% if estado.robo %}
+                                        <td>{{estado.cub_id}}</td>
+                                        <td>{{estado.cub_estado_texto}}</td>
+                                        <td>{{estado.cub_estado_json}}</td>
+                                        {% if estado.cub_robo %}
                                             <td><span class="badge badge-success">Sim</span></td>
                                         {% else %}
                                             <td><span class="badge badge-danger">Não</span></td>
                                         {% endif %}
-                                        <td><a class="btn btn-danger" href="/configuracoes/excluirEstado/{{estado.id}}" onclick="return confirm('Tem certeza que deseja excluir este estado?')"><i class="fas fa-trash"></i> Excluir</a></td>
+                                        <td> 
+                                            <div class="dropdown">
+                                                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    Ações
+                                                </a>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                                                    <a class="dropdown-item text-danger" href="/configuracoes/excluirEstado/{{estado.cub_id}}" onclick="return confirm('Tem certeza que deseja excluir este estado?')"><i class="fas fa-trash"></i> Excluir</a>
+                                                </div>
+                                            </div>
+                                        </td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
                                 <tr>
-                                    <td class="text-center" colspan="4">Nenhum registro encontrado</td>
+                                    <td class="text-center" colspan="5">Nenhum registro encontrado</td>
                                 </tr>
                             {% endif %}
                         </tbody>

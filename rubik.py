@@ -8,12 +8,12 @@ class Rubik:
         self.direction = ["", "'"]
         self.slen = random.randint(25, 28)
         self.cube_default = {
-            'Upper':    {'0': 'b', '1': 'b', '2': 'b', '3': 'b', '4': 'b', '5': 'b', '6': 'b', '7': 'b', '8': 'b'},
-            'Left':     {'0': 'o', '1': 'o', '2': 'o', '3': 'o', '4': 'o', '5': 'o', '6': 'o', '7': 'o', '8': 'o'},
-            'Front':    {'0': 'w', '1': 'w', '2': 'w', '3': 'w', '4': 'w', '5': 'w', '6': 'w', '7': 'w', '8': 'w'},
-            'Right':    {'0': 'r', '1': 'r', '2': 'r', '3': 'r', '4': 'r', '5': 'r', '6': 'r', '7': 'r', '8': 'r'},
-            'Back':     {'0': 'y', '1': 'y', '2': 'y', '3': 'y', '4': 'y', '5': 'y', '6': 'y', '7': 'y', '8': 'y'},
-            'Down':     {'0': 'g', '1': 'g', '2': 'g', '3': 'g', '4': 'g', '5': 'g', '6': 'g', '7': 'g', '8': 'g'},
+            'Upper':    {'0': 'y', '1': 'y', '2': 'y', '3': 'y', '4': 'y', '5': 'y', '6': 'y', '7': 'y', '8': 'y'},
+            'Left':     {'0': 'b', '1': 'b', '2': 'b', '3': 'b', '4': 'b', '5': 'b', '6': 'b', '7': 'b', '8': 'b'},
+            'Front':    {'0': 'r', '1': 'r', '2': 'r', '3': 'r', '4': 'r', '5': 'r', '6': 'r', '7': 'r', '8': 'r'},
+            'Right':    {'0': 'g', '1': 'g', '2': 'g', '3': 'g', '4': 'g', '5': 'g', '6': 'g', '7': 'g', '8': 'g'},
+            'Back':     {'0': 'o', '1': 'o', '2': 'o', '3': 'o', '4': 'o', '5': 'o', '6': 'o', '7': 'o', '8': 'o'},
+            'Down':     {'0': 'w', '1': 'w', '2': 'w', '3': 'w', '4': 'w', '5': 'w', '6': 'w', '7': 'w', '8': 'w'},
         }
         if cube:
             self.cube = cube
@@ -232,25 +232,13 @@ class Rubik:
         return result[:-1]
 
     def finishedCube(self):
-        colors = {}
-        colors['r'] = 0
-        colors['o'] = 0
-        colors['y'] = 0
-        colors['g'] = 0
-        colors['b'] = 0
-        colors['w'] = 0
-        error = 0
         for face in self.cube:
             for color in self.cube[face]:
                 try:
-                    color = self.cube[face][color]
-                    colors[color] += 1
+                    if(self.cube[face]['4'] != self.cube[face][color]):
+                        return False
                 except NameError:
-                    error = 1
-
-        for color in colors:
-            if(error or colors[color] != 9):
-                return False
+                    return False
 
         return True
 

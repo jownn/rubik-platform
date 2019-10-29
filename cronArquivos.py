@@ -1,80 +1,46 @@
 import Database
 import datetime
-import os
-import rubik
-import json
+import compiler
 
 
 def rodarFilaArquivos(every_minute):
+    print("Rodando Fila de Arquivos a cada " + str(every_minute) + " minuto(s)")
     rodou = False
     minute = datetime.datetime.now().strftime('%M')
     while(True):
         if minute != datetime.datetime.now().strftime('%M'):
+            minute = datetime.datetime.now().strftime('%M')
             rodou = False
         if not (int(datetime.datetime.now().strftime('%M')) % every_minute) and not rodou:
+            print("Verificando..")
             rodou = True
             with Database.Database('rubik_platform.db') as db:
-                envios = db.query('SELECT * FROM envios WHERE status = 0')
+                envios = db.query('SELECT * FROM envios WHERE env_status = 0')
             if envios:
                 for envio in envios:
                     print(envio)
-                    filename = envio['filename'].rsplit('.', 1)
-                    filenamewext = filename[0].lower()
-                    ext = filename[1].lower()
                     with Database.Database('rubik_platform.db') as db:
-                        compiler = db.query(
-                            'SELECT * FROM compiladores WHERE extensao = ? LIMIT 1', (ext,))
-                    if compiler:
-                        compiler = compiler[0]
-                        print(compiler)
-                        source_code = "uploads/source_code/" + envio['filename']
-                        intxt = "uploads/input/in_" + compiler['tipoEntrada'] + ".txt"
-                        outtxt = "uploads/output/out_" + filenamewext + ".txt"
-                        out = "uploads/source_code/out"
+                        estados = db.query(
+                            'SELECT * FROM estados_cubo ORDER BY cub_robo DESC LIMIT 5', ())
+                    if estados:
+                        comp = compiler.Compiler(envio['env_filename'])
+                        success = comp.Compile(estados)
 
-                        comando = compiler['comando']
-                        comando = comando.replace('{!source_code!}', source_code)
-                        comando = comando.replace('{!intxt!}', intxt)
-                        comando = comando.replace('{!outtxt!}', outtxt)
-                        comando = comando.replace('{!out!}', out)
-
-                        with Database.Database('rubik_platform.db') as db:
-                            estados = db.query(
-                                'SELECT * FROM estados_cubo ORDER BY robo DESC LIMIT 5', ())
-
-                        if estados:
-                            success = 0
-                            for estado in estados:
-                                print(estado)
-                                nome_arquivo = '../rubik-platform/uploads/input/in_' + compiler['tipoEntrada'] + '.txt'
-                                arquivo = open(nome_arquivo, 'w')
-                                arquivo.writelines(estado['estado_' + compiler['tipoEntrada']])
-                                arquivo.close()
-                                os.system(comando)
-
-                                nome_arquivo = '../rubik-platform/uploads/output/out_' + filenamewext + '.txt'
-                                arquivo = open(nome_arquivo, 'r')
-                                out = arquivo.readline()
-                                out = out.rstrip('\n')
-                                movements = out.split(" ")
-
-                                cubo = rubik.Rubik(json.loads(estado['estado_json']))
-                                if cubo.validMovements(movements):
-                                    for move in movements:
-                                        cubo.move(move)
-
-                                    if cubo.finishedCube():
-                                        print('sucesso')
-                                        success += 1
-                                    else:
-                                        print('errou')
-                        if success == len(estados):
+                        if success:
+                            print("sucesso")
                             with Database.Database('rubik_platform.db') as db:
-                                db.execute("UPDATE envios SET status = ? WHERE id = ?", (1, envio['id']))
+                                db.execute("UPDATE envios SET env_status = ? WHERE env_id = ?", (1, envio['env_id']))
                         else:
+                            print("erro")
                             with Database.Database('rubik_platform.db') as db:
-                                db.execute("UPDATE envios SET status = ? WHERE id = ?", (2, envio['id']))
+                                db.execute("UPDATE envios SET env_status = ? WHERE env_id = ?", (2, envio['env_id']))
+                    else:
+                        print("Não há estados disponiveis")
+            print("fim")
+            
 
+print(__name__)
+print("CronArquivo")
 
 if __name__ == "__main__":
     rodarFilaArquivos(1)

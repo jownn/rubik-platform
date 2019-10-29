@@ -204,7 +204,7 @@ def get_cube():
                         for color in CUBO[face]:
                             texto += CUBO[face][color][0]
                     with Database.Database('rubik_platform.db') as db:
-                        db.execute("INSERT INTO estados_cubo (estado_texto, estado_json, robo) VALUES (?,?,?)", (texto, json.dumps(CUBO), 1))
+                        db.execute("INSERT INTO estados_cubo (cub_estado_texto, cub_estado_json, cub_robo) VALUES (?,?,?)", (texto, json.dumps(CUBO), 1))
                     break
                 else:
                     num_face = 1
