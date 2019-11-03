@@ -87,9 +87,7 @@
                                         {% if robo.rob_status == 0 %}
                                             <td><span class="badge badge-warning">Envio Pendente</span></td>
                                         {% elif robo.rob_status == 1 %}
-                                            <td><span class="badge badge-info">Executando</span></td>
-                                        {% elif robo.rob_status == 2 %}
-                                            <td><span class="badge badge-success">Finalizado</span></td>
+                                            <td><span class="badge badge-info">Enviado</span></td>
                                         {% endif %}
                                         <td>{{robo.rob_data_adicionado}}</td>
                                         <td>{{robo.rob_idenvio}}</td>

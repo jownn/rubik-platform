@@ -6,23 +6,53 @@ services:
     image: app:rubik
     ports:
       - "5000:5000"
-    command: ["python","main.py"]
+    command: "python -u main.py"
     volumes: 
       - app-volume:/app
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/video0:/dev/video0
+      - /dev/video1:/dev/video1
+    environment:
+      - DISPLAY=unix:0
+    network_mode: host
+    privileged: true
   cron_arquivo:
     image: app:rubik
-    command: ["python","-u","cronArquivos.py"]
+    command: "python -u cronArquivos.py"
     volumes: 
       - app-volume:/app
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix
     depends_on: 
       - app
-  # cron_robo:
-  #   image: app:rubik
-  #   command: ["python","-u","cronRobo.py"]
-  #   volumes: 
-  #     - app-volume:/app
-  #   depends_on: 
-  #     - app
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/video0:/dev/video0
+      - /dev/video1:/dev/video1
+    environment:
+      - DISPLAY=unix:0
+    network_mode: host
+    privileged: true
+  cron_robo:
+    image: app:rubik
+    command: "python -u cronRobo.py"
+    volumes: 
+      - app-volume:/app
+      - /etc/localtime:/etc/localtime:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    depends_on: 
+      - app
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+      - /dev/video0:/dev/video0
+      - /dev/video1:/dev/video1
+    environment:
+      - DISPLAY=unix:0
+    network_mode: host
+    privileged: true
 
 volumes:
   app-volume:

@@ -26,11 +26,12 @@ CUBO = {
 
 
 def get_cube():
+    print('Iniciando...')
     square_size = 40
     space_size = 60
     draw_size = (square_size * 3) + (space_size * 4)
     draw_step = square_size + space_size
-    cap = cv.VideoCapture(0)
+    cap = cv.VideoCapture(1)
     time = t.time()
     img = np.array([])
     global FACES
@@ -212,11 +213,15 @@ def get_cube():
             cv.imshow('rubik_capture', frame)
             if cv.waitKey(1) & 0xFF == ord('q'):
                 break
+
         except:
             break
 
+    print('finalizando...')
     cap.release()
+    cv.waitKey(1)
     cv.destroyAllWindows()
+    cv.waitKey(1)
 
 
 def verifica_cubo():

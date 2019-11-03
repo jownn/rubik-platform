@@ -16,11 +16,12 @@ O Kit educacional (robô)
 Obs.: É necessário antes de instalar este projeto, ter instalado: 
 * Docker e o Docker-compose
 
-Para instalá-lo em sua máquina faça os comandos a seguir:
+Para instalá-lo em sua máquina plugue a camêra e faça os comandos a seguir:
 
 ``` bash
   git clone https://github.com/jownn/rubik-platform.git
   cd rubik-platform
+  xhost +local:root
   docker-compose build
   docker-compose up
 ```

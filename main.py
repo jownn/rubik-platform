@@ -3,7 +3,6 @@ from app import app
 from flask import flash, redirect, render_template, request, session, jsonify, Markup
 from werkzeug.utils import secure_filename
 import Database
-import recoginition
 import datetime
 import rubik
 import json
@@ -382,7 +381,7 @@ def capturarCubo():
         return redirect('/home')
     else:
         try:
-            recoginition.get_cube()
+            os.system('python recognition.py')
             flash('Cubo capturado com sucesso', 'success')
         except:
             flash('Ocorreu um erro, verifique as conexões', 'danger')
@@ -418,7 +417,7 @@ def getEnvios():
         return jsonify(False)
     else:
         with Database.Database('rubik_platform.db') as db:
-            enviosRobo = db.query('SELECT * FROM fila_robo JOIN envios ON env_id = rob_idenvio')
+            enviosRobo = db.query('SELECT * FROM fila_robo JOIN envios ON env_id = rob_idenvio AND rob_status = 0')
         if enviosRobo:
             return jsonify(enviosRobo)
         else:

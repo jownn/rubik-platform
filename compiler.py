@@ -9,7 +9,7 @@ class Compiler():
     def __init__(self, filename):
         self.filename = filename
 
-    def Compile(self, estados={}):
+    def Compile(self, estados={}, returnMovements=False):
         filename = self.filename.rsplit('.', 1)
         filenamewext = filename[0].lower()
         ext = filename[1].lower()
@@ -46,13 +46,21 @@ class Compiler():
 
                     cubo = rubik.Rubik(json.loads(estado['cub_estado_json']))
                     if cubo.validMovements(movements):
+                        if returnMovements:
+                            return out
                         for move in movements:
                             cubo.move(move)
 
                         if cubo.finishedCube():
                             success += 1
-
+            if returnMovements:
+                return ""
             if success == len(estados):
                 return True
             else:
                 return False
+        if returnMovements:
+            return ""
+        else:
+            return False
+
